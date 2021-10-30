@@ -1,0 +1,243 @@
+@import url('grid.css');
+*,
+ :before,
+ :after {
+    margin: 0;
+    padding: 0;
+    font-family: inherit;
+}
+
+body {
+    --body-color: #ffffff;
+    --text-color: #fff;
+    --text-color-on-light: #181818;
+    --gray: #ebedf2;
+    --red: #ea4638;
+    --primary-color: hsla(var(--p-color), 50%, 50%, 100%);
+    --primary-color-dark: hsla(var(--p-color), 50%, 40%, 100%);
+    --primary-color-darker: hsla(var(--p-color), 50%, 30%, 100%);
+    --primary-color-light: hsla(var(--p-color), 50%, 55%, 100%);
+    --primary-color-light: hsla(var(--p-color), 50%, 60%, 100%);
+    --primary-color-lighter: hsla(var(--p-color), 50%, 70%, 100%);
+}
+
+body {
+    background: hsla(var(--p-color), 50%, 9%, 10%);
+    color: var(--text-color-on-light);
+}
+
+body {
+    font-family: "Inter", sans-serif;
+    width: 100%;
+    margin: auto;
+    min-height: 100vh;
+    border-radius: 4px;
+    overflow-x: hidden;
+}
+
+.btn {
+    padding: 10px 17px;
+    background: var(--primary-color);
+    color: var(--text-color);
+    border: none;
+    cursor: pointer;
+    outline: none;
+    border-radius: 4px;
+    display: inline-flex;
+    user-select: none;
+    text-decoration: none;
+    transition: all 0.2s cubic-bezier(.79, .14, .15, .86);
+    font-size: 16px;
+}
+
+.btn:hover {
+    background: var(--primary-color-dark);
+}
+
+.btn:focus-visible {
+    box-shadow: 0px 0px 0px 4px var(--primary-color-lighter);
+}
+
+.btn.ghost {
+    color: var(--primary-color);
+    background: transparent;
+}
+
+.btn.ghost .ripple {
+    background-color: hsla(var(--p-color), 50%, 50%, 10%);
+}
+
+.btn.ghost:hover {
+    color: var(--primary-color-darker);
+}
+
+a:not([class]) {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border-radius: 4px;
+}
+
+a:not([class]):hover {
+    color: var(--primary-color-light);
+}
+
+a:not([class]):focus {
+    color: var(--primary-color-darker);
+}
+
+.re,
+.btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.re-light .ripple {
+    background-color: rgba(255, 255, 255, 0.16);
+}
+
+.re-dark .ripple {
+    background-color: rgba(0, 0, 0, 0.16);
+}
+
+.ripple {
+    background-color: rgba(255, 255, 255, 0.16);
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    -webkit-transition: .6s;
+    transition: .6s;
+    animation: ripple 0.3s ease-out forwards;
+}
+
+@keyframes ripple {
+    from {
+        -webkit-transform: scale(0);
+        transform: scale(0);
+    }
+    to {
+        -webkit-transform: scale(1);
+        transform: scale(1);
+    }
+}
+
+#header {
+    display: flex;
+    position: sticky;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 27px;
+    top: 0;
+    left: 0;
+    z-index: 999999;
+    background: white;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid #d4d4d4;
+    margin-bottom: 20px;
+}
+
+.start {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.end {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#header.sticky {
+    box-shadow: 0px 0px 4px #9e9e9e;
+    background: #fffffff2;
+    border-bottom: transparent;
+}
+
+#search {
+    padding: 8px 10px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+#search:hover {
+    background: #f2f2f2;
+}
+
+#search:focus {
+    box-shadow: 0px 0px 10px -4px var(--primary-color);
+    background: transparent;
+}
+
+.box {
+    padding: 20px;
+    margin-bottom: 10px;
+    border: 0px solid #ddd;
+    border-radius: 4px;
+    background: var(--body-color);
+    transition: all 0.2s ease;
+    font-size: 13px;
+    line-height: 22px;
+}
+
+.rounded {
+    border-radius: 100px;
+}
+
+#post-content {
+    background: var(--body-color);
+    border-radius: 4px;
+    padding: 4px 30px;
+    overflow: hidden;
+    font-size: 14px;
+    line-height: 30px;
+    font-weight: 400;
+}
+
+#post-sidebar {
+    top: 80px;
+}
+
+h1 {
+    font-size: 30px;
+    line-height: 68px;
+    font-weight: 400;
+}
+
+h2 {
+    font-size: 27px;
+    line-height: 38px;
+    font-weight: 400;
+}
+
+h3 {
+    font-size: 23px;
+    line-height: 49px;
+    font-weight: 300;
+}
+
+h4 {
+    font-size: 21px;
+    line-height: 34px;
+    font-weight: 300;
+}
+
+h5 {
+    font-size: 19px;
+    line-height: 31px;
+    font-weight: 400;
+}
+
+h6 {
+    font-size: 16px;
+    line-height: 27px;
+    font-weight: 400;
+}
+
+img {
+    max-width: 100%;
+}
