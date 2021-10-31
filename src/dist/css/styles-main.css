@@ -54,6 +54,25 @@ body {
     background: var(--primary-color-dark);
 }
 
+.btn.small {
+    padding: 5px 10px;
+    font-size: 16px;
+}
+
+#homepage-toggle {
+    display: flex;
+    margin-bottom: 15px;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#homepage-toggle .btn {
+    flex: 1;
+    justify-content: center;
+    margin-left: 10px;
+}
+
 .btn:focus-visible {
     box-shadow: 0px 0px 0px 4px var(--primary-color-lighter);
 }
@@ -64,7 +83,7 @@ body {
 }
 
 .btn.ghost .ripple {
-    background-color: hsla(var(--p-color), 50%, 50%, 10%);
+    background-color: hsla(var(--p-color), 50%, 50%, 40%);
 }
 
 .btn.ghost:hover {
@@ -112,11 +131,10 @@ a:not([class]):focus {
 
 @keyframes ripple {
     from {
-        -webkit-transform: scale(0);
         transform: scale(0);
+        filter: opacity(0);
     }
     to {
-        -webkit-transform: scale(1);
         transform: scale(1);
     }
 }
@@ -240,4 +258,102 @@ h6 {
 
 img {
     max-width: 100%;
+}
+
+#footer {
+    margin-top: 30px;
+    text-align: center;
+    padding: 30px;
+    background: hsla(var(--p-color), 50%, 20%, 10%);
+    color: black;
+    font-weight: 300;
+    font-size: 14px;
+}
+
+.post-box {
+    padding: 15px 20px;
+    background: var(--body-color);
+    margin-bottom: 20px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    user-select: none;
+    font-size: 20px;
+}
+
+.post-box:hover {
+    background: hsla(var(--p-color), 50%, 99%, 100%);
+}
+
+.post-box:focus-within {
+    box-shadow: 0px 0px 0px 2px hsla(var(--p-color), 50%, 50%, 100%);
+}
+
+#homepage {
+    display: flex;
+    width: 100%;
+}
+
+#homepage-left {
+    flex: 2;
+    margin-right: 15px;
+}
+
+#homepage-middle {
+    flex: 8;
+}
+
+#homepage-right {
+    flex: 2;
+    margin-left: 15px;
+}
+
+.list {
+    display: grid;
+}
+
+.list-item {
+    background: #f000;
+    margin-bottom: 0px;
+    padding: 10px;
+    border-radius: 4px;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    color: #2a2a2a;
+    transition: all 0.2s ease;
+    user-select: none;
+    text-decoration: none;
+}
+
+#instantclick-bar {
+    height: 2px !important;
+    background: hsla(var(--p-color), 50%, 50%, 60%);
+}
+
+a {
+    outline: none;
+    border: none;
+}
+
+.list-item-icon {
+    font-size: 21px;
+    margin-right: 7px;
+}
+
+.list-item:hover {
+    background: #00000012;
+}
+
+.list-item:focus {
+    background: hsla(var(--p-color), 50%, 0%, 20%);
+    color: hsla(var(--p-color), 50%, 0%, 100%);
+}
+
+.list-item.active {
+    background: hsla(var(--p-color), 50%, 50%, 20%);
+    color: hsla(var(--p-color), 50%, 50%, 100%);
+}
+
+.list-item.active:focus {
+    background: hsla(var(--p-color), 50%, 50%, 30%);
 }

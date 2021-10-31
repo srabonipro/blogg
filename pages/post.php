@@ -2,7 +2,7 @@
 if (!defined("D")) {
     die();
 } else {
-    $str = $_GET['postname'];
+    $str = $_GET['route'];
     $pattern = "/.{4}$/";
     if (!preg_match($pattern, $str)) {
         require "pages/404.php";
@@ -11,7 +11,7 @@ if (!defined("D")) {
         /**
          * Post Start
          */
-        $str = $_GET['postname'];
+        $str = $_GET['route'];
         $pattern = "/-.{4}$/";
         $postnamea = preg_replace($pattern, "", $str);
         $postname = str_replace("-", " ", $postnamea);
@@ -21,7 +21,7 @@ if (!defined("D")) {
         $post = DB::queryFirstRow("SELECT * FROM posts WHERE title=%s AND purl=%s", $postname, $postid);
 
         if (!isset($post["creator"])) {
-            require "pages/404.php";
+            require "../pages/404.php";
             die();
         } else {
             ob_start();

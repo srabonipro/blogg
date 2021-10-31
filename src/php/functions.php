@@ -250,7 +250,7 @@ function show_header($title = "", $additional = "")
                 } else {
                 ?>
                     <a href="<?= BASEPATH ?>/pages/post-new.php" class="btn lg">Create Post</a>
-                    <a href="<?= BASEPATH ?>/pages/notifications.php" class="btn lg ghost rounded"><i class="mdi mdi-bell"></i></a>
+                    <a href="<?= BASEPATH ?>/pages/dashboard.php/notifications" class="btn lg ghost rounded"><i class="mdi mdi-bell"></i></a>
                     <a href="<?= BASEPATH ?>/pages/dashboard.php" class="btn lg ghost rounded"><i class="mdi mdi-account"></i></a>
                 <?php } ?>
             </div>

@@ -216,6 +216,9 @@ elseif (
 
     die();
 } else {
+    if (!defined("D")) {
+        die("0");
+    }
     /**
      * 
      * Normal Dashboard
@@ -275,7 +278,6 @@ elseif (
 
     ob_start();
     ?>
-    <script src="https://js.hcaptcha.com/1/api.js"></script>
     <script src="<?= BASEPATH ?>/src/dist/js/dashboard.js"></script>
 <?php
     $footer = ob_get_clean();
