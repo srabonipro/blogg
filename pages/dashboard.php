@@ -216,9 +216,6 @@ elseif (
 
     die();
 } else {
-    if (!defined("D")) {
-        die("0");
-    }
     /**
      * 
      * Normal Dashboard
@@ -271,6 +268,44 @@ elseif (
             <button class="btn" type="submit">Submit</button>
         </form>
 
+    <?php
+    } else {
+    ?>
+        <div class="p-2"></div>
+        <div class="row">
+            <div class="col-2">
+                <div class="list">
+                    <a class="list-item active" href="#">
+                        <i src="<?= BASEPATH ?>/uploads/icon/home.png" alt="Icon" class="list-item-icon mdi mdi-home"></i>
+                        <span class="list-item-title">Overview</span>
+                    </a>
+                    <a class="list-item" href="<?= BASEPATH ?>/pages/dashboard.php/reading-list">
+                        <i src="<?= BASEPATH ?>/uploads/icon/home.png" alt="Icon" class="list-item-icon mdi mdi-bookmark"></i>
+                        <span class="list-item-title">Saved posts</span>
+                    </a>
+                    <a class="list-item" href="<?= BASEPATH ?>/pages/dashboard.php/account">
+                        <i src="<?= BASEPATH ?>/uploads/icon/home.png" alt="Icon" class="list-item-icon mdi mdi-account"></i>
+                        <span class="list-item-title">Account</span>
+                    </a>
+                    <a class="list-item" href="<?= BASEPATH ?>/pages/dashboard.php/posts">
+                        <i src="<?= BASEPATH ?>/uploads/icon/home.png" alt="Icon" class="list-item-icon mdi mdi-note-text-outline"></i>
+                        <span class="list-item-title">Posts</span>
+                    </a>
+                    <a class="list-item" href="<?= BASEPATH ?>/pages/dashboard.php/email">
+                        <i src="<?= BASEPATH ?>/uploads/icon/home.png" alt="Icon" class="list-item-icon mdi mdi-shield-account"></i>
+                        <span class="list-item-title">Email Settings</span>
+                    </a>
+                    <a class="list-item" href="<?= BASEPATH ?>/pages/dashboard.php/appearance">
+                        <i src="<?= BASEPATH ?>/uploads/icon/home.png" alt="Icon" class="list-item-icon mdi mdi-palette"></i>
+                        <span class="list-item-title">Appearance</span>
+                    </a>
+                </div>
+            </div>
+            <div class="col-10">
+                <h1><?= htmlspecialchars($account["username"]) ?>'s dashboard</h1>
+                <p>Change settings and other stuff!</p>
+            </div>
+        </div>
     <?php
     }
 

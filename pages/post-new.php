@@ -79,7 +79,7 @@ if (
                     'creator' => $id["id"]
                 ]);
                 $s = true;
-                $purl = BASEPATH . "/" . str_replace(" ", "-", $title) . "-" . $a;
+                $purl = BASEPATH . "/post/" . str_replace(" ", "-", $title) . "-" . $a;
             } catch (Exception $e) {
                 $s = false;
                 $m = "Unknown Error";

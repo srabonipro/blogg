@@ -140,62 +140,24 @@ function share_buttons()
 {
     ob_start();
 ?>
-
-    <a class="share-btn share-btn-branded share-btn-twitter" title="Share on Twitter">
-        <span class="share-btn-icon"></span>
-        <span class="share-btn-text">Twitter</span>
-    </a>
-
-    <!-- Branded Facebook button -->
-    <a class="share-btn share-btn-branded share-btn-facebook" title="Share on Facebook">
-        <span class="share-btn-icon"></span>
-        <span class="share-btn-text">Facebook</span>
-    </a>
-
-    <!-- Branded Google+ button -->
-    <a class="share-btn share-btn-branded share-btn-googleplus" title="Share on Google+">
-        <span class="share-btn-icon"></span>
-        <span class="share-btn-text">Google+</span>
-    </a>
-
-    <!-- Branded Reddit button -->
-    <a class="share-btn share-btn-branded share-btn-reddit" title="Share on Reddit+">
-        <span class="share-btn-icon"></span>
-        <span class="share-btn-text">Reddit</span>
-    </a>
-
-    <!-- Branded Tumblr button -->
-    <a class="share-btn share-btn-branded share-btn-tumblr" title="Share on Tumblr">
-        <span class="share-btn-icon"></span>
-        <span class="share-btn-text">Tumblr</span>
-    </a>
-
-    <!-- Divider only used for demo, don't copy this -->
-    <div class="divider" role="presentation"></div>
-
-    <!-- Branded LinkedIn button -->
-    <a class="share-btn share-btn-branded share-btn-linkedin" title="Share on LinkedIn">
-        <span class="share-btn-icon"></span>
-        <span class="share-btn-text">LinkedIn</span>
-    </a>
-
-    <!-- Branded Pinterest button -->
-    <a class="share-btn share-btn-branded share-btn-pinterest" title="Share on Pinterest">
-        <span class="share-btn-icon"></span>
-        <span class="share-btn-text">Pinterest</span>
-    </a>
-
-    <!-- Branded StumbleUpon button -->
-    <a class="share-btn share-btn-branded share-btn-stumbleupon" title="Share on StumbleUpon">
-        <span class="share-btn-icon"></span>
-        <span class="share-btn-text">StumbleUpon</span>
-    </a>
-
-    <!-- Branded Delicious button -->
-    <a class="share-btn share-btn-branded share-btn-delicious" title="Share on Delicious">
-        <span class="share-btn-icon"></span>
-        <span class="share-btn-text">Delicious</span>
-    </a>
+    <div class="list">
+        <button class="list-item">
+            <i class="list-item-icon mdi mdi-facebook"></i>
+            Share to Facebook
+        </button>
+        <button class="list-item">
+            <i class="list-item-icon mdi mdi-reddit"></i>
+            Share to Reddit
+        </button>
+        <button class="list-item">
+            <i class="list-item-icon mdi mdi-pinterest"></i>
+            Pin This
+        </button>
+        <button class="list-item">
+            <i class="list-item-icon mdi mdi-clipboard"></i>
+            Copy link
+        </button>
+    </div>
 <?php
     return ob_get_clean();
 }
@@ -219,7 +181,7 @@ function show_header($title = "", $additional = "")
         <?= $additional ?>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet"> 
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>
             :root {
@@ -238,8 +200,10 @@ function show_header($title = "", $additional = "")
     <body>
         <header id="header">
             <div class="start">
-                <a style="min-width: 200px;" href="<?= BASEPATH ?>"><img src="<?= BASEPATH ?>/uploads/main/logo.png" alt="<?= FNAME ?> logo"></a>
-                <input type="text" id="search" placeholder="Search" class="input ms-2">
+                <a href="<?= BASEPATH ?>">
+                    <img id="logo" src="<?= BASEPATH ?>/uploads/main/logo.png" alt="<?= FNAME ?> logo">
+                </a>
+                <input type="text" id="search" placeholder="Search">
             </div>
             <div class="end">
                 <?php if (!logged_in()) {
@@ -256,7 +220,7 @@ function show_header($title = "", $additional = "")
             </div>
         </header>
 
-        <div class="container-xl">
+        <div class="container-fluid">
 
             <!--[if lt IE 7]>
                 <h2>You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</h2>
@@ -270,7 +234,22 @@ function show_header($title = "", $additional = "")
         ob_start(); ?>
         </div>
         <footer id="footer">
-            <p>&copy; <a href="<?= BASEPATH ?>"><?= FNAME ?></a> All rights reserved</p>
+            <?php
+            $links = DB::query("SELECT * FROM links");
+
+            foreach ($links as $link) {
+            ?>
+                <a class="btn small ghost" href="<?= $link["value"] ?>">
+                    <i alt="Icon" class="list-item-icon mdi mdi-<?= $link["icon"] ?>"></i>
+                    <span class="list-item-title"><?= $link["title"] ?></span>
+                </a>
+            <?php
+            }
+            ?>
+            <div class="p-2"></div>
+            <p>&copy; <?= date("Y"); ?>
+                <a href="<?= BASEPATH ?>"><?= FNAME ?></a> All rights reserved
+            </p>
         </footer>
         <script src="<?= BASEPATH ?>/src/dist/js/jquery.js"></script>
         <script src="<?= BASEPATH ?>/src/dist/js/sweetalert2.min.js"></script>

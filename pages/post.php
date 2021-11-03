@@ -42,7 +42,7 @@ if (!defined("D")) {
              */
             $user = DB::queryFirstRow("SELECT * FROM users WHERE id = %s", $post["creator"]);
             ?>
-            <article id="article-<?= $post["id"] ?>" class="row">
+            <article id="article-<?= $post["id"] ?>" class="row ms-1">
                 <main class="col-md-9" id="post-content">
                     <h1 id="title">
                         <?= htmlspecialchars($post["title"]) ?>
@@ -51,8 +51,8 @@ if (!defined("D")) {
                 </main>
                 <aside class="col-md-3" id="post-sidebar" style="height: max-content;position:sticky;">
                     <div class="box">
-                        <img src="<?= get_gravatar(htmlspecialchars($user["email"])); ?>" class="rounded" alt="<?= htmlspecialchars($user["username"]); ?> Profile Image">
-                        <h2><a href="<?= BASEPATH ?>/user.php/?id=<?= $user["id"] ?>"><?= htmlspecialchars($user["username"]); ?></a></h2>
+                        <img src="<?= get_gravatar(htmlspecialchars($user["email"])); ?>" class="rounded" title="<?= htmlspecialchars($user["username"]); ?> Profile Image">
+                        <h2><a href="<?= BASEPATH ?>/account/<?= $user["uname"] ?>"><?= htmlspecialchars($user["username"]); ?></a></h2>
                         <p><?= htmlspecialchars($user['meta']); ?></p>
 
                         <?php
@@ -77,20 +77,16 @@ if (!defined("D")) {
                         ?>
                                 <h2>Post Settings</h2>
                                 <a href="" class="btn small mb-5">Edit Post</a>
-                            <?php
-                            } else {
-                                /**
-                                 * Show reactions
-                                 */
-                            ?>
-                                <button class="reaction"><i class="mdi mdi-heart"></i></button>
-                                <button class="reaction"><i class="mdi mdi-unicorn-variant"></i></button>
-                                <button class="reaction"><i class="mdi mdi-content-save"></i></button>
                         <?php
                             }
                         }
                         ?>
-                        <br>
+                        <div class="mb-2">
+                            <button class="btn reaction"><i class="mdi mdi-heart"></i></button>
+                            <button class="btn reaction"><i class="mdi mdi-unicorn-variant"></i></button>
+                            <button class="btn reaction"><i class="mdi mdi-content-save"></i></button>
+                        </div>
+
                         <h2>Share this</h2>
                         <?= share_buttons(); ?>
                     </div>
