@@ -3,7 +3,7 @@ header("HTTP/1.0 404 Not Found");
 echo show_header("404 Not Found ")
 ?>
 
-<div style="height: 80vh;display: flex;align-items: center;justify-content: center;">
+<div style="height: 60vh;display: flex;align-items: center;justify-content: center;">
     <div style="text-align: center;">
         <h1>404</h1>
         <hr>

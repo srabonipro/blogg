@@ -7,8 +7,7 @@ require "../init.php";
  */
 if (!logged_in()) {
     header("Location: " . BASEPATH);
-}
-else if (!completed_setup()) {
+} else if (!completed_setup()) {
     echo show_header("Error");
     echo "<div class=\"notification error\"> Please complete the setup in the dashboard to create a post.</div>";
     echo show_footer();
@@ -16,9 +15,6 @@ else if (!completed_setup()) {
 }
 ?>
 <?php
-/**
- * API's
- */
 /**
  * Check if POST post there
  */
@@ -60,9 +56,15 @@ if (
      */
 
     if ($v->validate()) {
-        $tagslength = explode(",", $tags);
+        /**
+         * Remove duplicate tags
+         */
+        $tags = array_unique_multidimensional(explode(",", $tags));
 
-        if (count($tagslength) > 4) {
+        /**
+         * Only allow 4 tags
+         */
+        if (count($tags) > 4) {
             $s = false;
             $m = "Too much tags. Only 4 allowed";
         } else {
@@ -122,26 +124,59 @@ if (
 /**
  * END API
  */
-echo show_header("Create post");
+ob_start();
 ?>
-<div id="post">
-    <h1>
-        <input type="text" id="title" style="all:inherit" placeholder="Post Title">
-    </h1>
-    <h4>
-        <input type="text" id="tags" style="all:inherit" placeholder="T, a, g, s">
-    </h4>
+<link rel="stylesheet" href="<?= BASEPATH ?>/src/dist/css/simplemde.min.css">
+<style>
+    #loading {
+        height: 60vh;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+    }
 
-    <button class="btn ghost small" id="previewbtn">Preview</button>
-    <br>
+    #imagePreview {
+        height: 160px;
+        width: 100%;
+        background-size: cover;
+        background-repeat: no-repeat;
+        margin-bottom: 10px;
+    }
+</style>
+</link>
+<?php
+$a = ob_get_clean();
+echo show_header("Create post", $a);
+?>
+<div id="post" class="row c-d-n">
 
-    <textarea id="editor">
+    <div id="loading" style="display: block;">
+        <div class="loader" style="display: block;"></div>
+    </div>
 
-    </textarea>
+    <div class="col-md-9">
+        <div class="box">
+            <h1>
+                <input type="text" id="title" style="all:inherit" placeholder="Post Title">
+            </h1>
+            <input type="text" id="imagdata" hidden>
+            <h4>
+                <input type="text" id="tags" style="all:inherit" placeholder="T, a, g, s">
+            </h4>
+            <textarea id="editor" placeholder="Post Content"></textarea>
+        </div>
+    </div>
 
-    <hr>
+    <div class="col-md-3">
+        <div class="box">
+            <h2>Upload cover image</h2>
+            <div id="imagePreview"></div>
+            <label for="file" class="btn">Upload Image</label>
+            <input type="file" id="file" style="opacity: 0;height:1px;width:1px;overflow:hidden">
+        </div>
+    </div>
 
-    <div class="btn-group">
+    <div class="btn-group mt-3">
         <button class="btn" id="publishbtn">Publish</button>
         <button class="btn ghost" id="savedraft">Save Draft</button>
         <button class="btn ghost" id="options"><i class="mdi mdi-cog"></i></button>
@@ -151,6 +186,7 @@ echo show_header("Create post");
 <?php
 ob_start();
 ?>
+<script src="<?= BASEPATH ?>/src/dist/js/simplemde.min.js"></script>
 <script src="<?= BASEPATH ?>/src/dist/js/create-post.js"></script>
 <?php
 $footer = ob_get_clean();

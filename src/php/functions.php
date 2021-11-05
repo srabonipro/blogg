@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Used in functions
+ */
 function encrypt__($data, $encryptionKey)
 {
     $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length('aes-256-gcm'));
@@ -16,7 +19,15 @@ function decrypt__($data, $encryptionKey)
     $ciphertext_raw = substr($c, $ivlen + $taglen);
     return openssl_decrypt($ciphertext_raw, 'aes-256-gcm', $encryptionKey, OPENSSL_RAW_DATA, $iv, $tag);
 }
+/**
+ * End functions
+ */
 
+/**
+ * 
+ * Encrypt and decrypt data
+ * 
+ */
 function hash__($string, $action = 'encrypt')
 {
     $secret = sha1(sha1(md5(SALT)));
@@ -28,6 +39,11 @@ function hash__($string, $action = 'encrypt')
     return $output;
 }
 
+/**
+ * 
+ * Generate a random string
+ * 
+ */
 function rand_id($length = 10)
 {
     $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -39,6 +55,11 @@ function rand_id($length = 10)
     return $randomString;
 }
 
+/**
+ * 
+ * Check if logged in
+ * 
+ */
 function logged_in()
 {
     /**
@@ -77,6 +98,11 @@ function logged_in()
     }
     return $l;
 }
+/**
+ * 
+ * Check if completed profile setup
+ * 
+ */
 function completed_setup()
 {
     /**
@@ -99,29 +125,11 @@ function completed_setup()
     }
     return $r;
 }
-function hexbrightness($hex, $steps)
-{
-    // Steps should be between -255 and 255. Negative = darker, positive = lighter
-    $steps = max(-255, min(255, $steps));
-
-    // Normalize into a six character long hex string
-    $hex = str_replace('#', '', $hex);
-    if (strlen($hex) == 3) {
-        $hex = str_repeat(substr($hex, 0, 1), 2) . str_repeat(substr($hex, 1, 1), 2) . str_repeat(substr($hex, 2, 1), 2);
-    }
-
-    // Split into three parts: R, G and B
-    $color_parts = str_split($hex, 2);
-    $return = '#';
-
-    foreach ($color_parts as $color) {
-        $color   = hexdec($color); // Convert to decimal
-        $color   = max(0, min(255, $color + $steps)); // Adjust color
-        $return .= str_pad(dechex($color), 2, '0', STR_PAD_LEFT); // Make two char hex code
-    }
-
-    return $return;
-}
+/**
+ * 
+ * Get gravatar
+ * 
+ */
 function get_gravatar($email, $s = 80, $d = 'mp', $r = 'g', $img = false, $atts = array())
 {
     $url = 'https://www.gravatar.com/avatar/';
@@ -135,7 +143,77 @@ function get_gravatar($email, $s = 80, $d = 'mp', $r = 'g', $img = false, $atts 
     }
     return $url;
 }
+/**
+ * 
+ * Validate image
+ * 
+ */
+function check_base64_image($base64)
+{
+    $file = $base64;
+    $file_data = base64_decode($file);
+    $f = finfo_open();
+    $mime_type = finfo_buffer($f, $file_data, FILEINFO_MIME_TYPE);
+    $file_type = explode('/', $mime_type)[0];
 
+    $acceptable_mimetypes = [
+        'image/png',
+        'image/gif',
+        'image/jpeg',
+    ];
+
+    if (!in_array($mime_type, $acceptable_mimetypes)) {
+        return false;
+    }
+
+    if ($file_type !== 'image') {
+        return false;
+    }
+
+    return true;
+}
+/**
+ * 
+ * Upload image to imgbb and return url
+ * 
+ */
+function upload_imgbb($data)
+{
+    $url = 'https://api.imgbb.com/1/upload';
+    $data = array('image' => $data, 'key' => IMGBBAPI);
+
+    $options = array(
+        'http' => array(
+            'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+            'method'  => 'POST',
+            'content' => http_build_query($data)
+        )
+    );
+    $context  = stream_context_create($options);
+    $result = file_get_contents($url, false, $context);
+    $json = json_decode($result, true);
+    return $json["data"]["url"];
+}
+/**
+ * 
+ * Remove duplicates from array
+ * 
+ */
+function array_unique_multidimensional($array)
+{
+    $result = array_map("unserialize", array_unique(array_map("serialize", $array)));
+    foreach ($result as $key => $value) {
+        if (is_array($value)) {
+            $result[$key] = array_unique_multidimensional($value);
+        }
+    }
+    return $result;
+}
+/**
+ * 
+ * Share buttons
+ * 
+ */
 function share_buttons()
 {
     ob_start();
@@ -162,42 +240,52 @@ function share_buttons()
     return ob_get_clean();
 }
 
-
+/**
+ * 
+ * Header
+ * 
+ */
 function show_header($title = "", $additional = "")
 {
     ob_start(); ?>
     <!DOCTYPE html>
-    <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-    <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-    <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-    <!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
     <html>
 
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title><?= $title . " | " . FNAME ?></title>
         <meta name="title" content="<?= $title . " | " . FNAME ?>">
-        <?= $additional ?>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <title><?= $title . " | " . FNAME ?></title>
+        <base href="<?= BASEPATH ?>">
+
+        <?= $additional ?>
+
+        <link rel="icon" href="<?= BASEPATH ?>/uploads/favicon.png">
+        <link rel="stylesheet" href="<?= BASEPATH ?>/src/dist/css/styles-main.css">
+        <link rel="stylesheet" href="<?= BASEPATH ?>/src/dist/css/sweetalert2.css">
+        <link rel="stylesheet" href="<?= BASEPATH ?>/src/dist/css/materialdesignicons.css">
+
         <style>
             :root {
                 --p-color: <?= FCOLOR ?>;
             }
         </style>
+
         <script>
             const basepath = "<?= BASEPATH ?>";
-            const pcolor = "<?= FCOLOR ?>";
         </script>
-        <link rel="stylesheet" href="<?= BASEPATH ?>/src/dist/css/styles-main.css">
-        <link rel="stylesheet" href="<?= BASEPATH ?>/src/dist/css/sweetalert2.css">
-        <link rel="stylesheet" href="<?= BASEPATH ?>/src/dist/css/materialdesignicons.css">
     </head>
 
-    <body>
+    <?php
+    /**
+     * For themes
+     */
+    $bodyclass = (logged_in() == true) ? DB::queryFirstRow("SELECT `theme` FROM `users` WHERE `email` = %s", hash__($_COOKIE['_loggedin__hash'], "decrypt"))["theme"] : 'logged-out';
+    ?>
+
+    <body class="<?= $bodyclass ?>">
         <header id="header">
             <div class="start">
                 <a href="<?= BASEPATH ?>">
@@ -221,14 +309,15 @@ function show_header($title = "", $additional = "")
         </header>
 
         <div class="container-fluid">
-
-            <!--[if lt IE 7]>
-                <h2>You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</h2>
-            <![endif]-->
         <?php
         return ob_get_clean();
     }
 
+    /**
+     * 
+     * Footer
+     * 
+     */
     function show_footer($additional = "")
     {
         ob_start(); ?>

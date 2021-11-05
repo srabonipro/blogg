@@ -302,7 +302,7 @@ elseif (
                 </div>
             </div>
             <div class="col-10">
-                <h1><?= htmlspecialchars($account["username"]) ?>'s dashboard</h1>
+                <h1><?= htmlspecialchars(strtok($account["username"]," ")) ?>'s dashboard</h1>
                 <p>Change settings and other stuff!</p>
             </div>
         </div>

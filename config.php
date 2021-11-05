@@ -38,6 +38,12 @@ define('CAPSECRET', '0xDC58576C2c0B8d1E4d982D472F12DFEC394Fd4AA');
  */
 define('SALT', '8780OP&(&^#%#%&RYR^TG&&7%%7DH$$GFHF');
 
+/**
+ * 
+ * Imgbb Config
+ * 
+ */
+define('IMGBBAPI', 'a947079d11d7e4d3969a5a53bb72169f');
 
 
 try {
