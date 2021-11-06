@@ -85,10 +85,7 @@
             <a href="<?= BASEPATH ?>/filter/new" class="btn small <?= ($active == "new") ? "" : "ghost" ?>">New</a>
             <a href="<?= BASEPATH ?>/filter/random" class="btn small <?= ($active == "random") ? "" : "ghost" ?>">Random</a>
         </div>
-        <div id="loading-screen" style="display: block !important;margin:auto">
-            <div class="loader" style="display: block !important;margin:auto"></div>
-        </div>
-        <div class="c-d-n">
+        <div>
             <?php
             /**
              * Show posts

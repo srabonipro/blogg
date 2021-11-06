@@ -47,7 +47,7 @@ if (!defined("D")) {
                     <h1 id="title">
                         <?= htmlspecialchars($post["title"]) ?>
                     </h1>
-                    <?php echo $Parsedown->text($post["content"]); ?>
+                    <?= $Parsedown->text($post["content"]) ?>
                 </main>
                 <aside class="col-md-3" id="post-sidebar" style="height: max-content;position:sticky;">
                     <div class="box">
@@ -96,7 +96,7 @@ if (!defined("D")) {
             <?php
             ob_start();
             ?>
-            <script src="<?= BASEPATH ?>/src/dist/js/create-post.js"></script>
+            <script src="<?= BASEPATH ?>/src/dist/js/post.js"></script>
 <?php
             $footer = ob_get_clean();
             echo show_footer($footer);

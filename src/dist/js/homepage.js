@@ -1,9 +1,5 @@
 (function ($) {
     $(document).ready(function () {
-        // Add a delay
-        setTimeout(() => {
-            $(".c-d-n").removeClass("c-d-n");
-            $("#loading-screen").remove();
-        }, 50);
+        console.log('Loaded');
     });
 }(jQuery));

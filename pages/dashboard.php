@@ -485,17 +485,16 @@ else {
                                     <input type="text" class="input" id="job" name="job" value="<?= $account["job"] ?>" placeholder="Your job title">
                                 </div>
 
-                                <div class="p-2"></div>
+                                <button type="submit" class="btn">Save Settings</button>
+
+                                <div class="p-5 m-5"></div>
                                 <div class="box" style="border: 1px solid;">
-                                    <h2>Disable Account</h2>
+                                    <h2>Delete Account</h2>
                                     <p>If you want to disable your account, you can do it here. This will delete all your posts and all your data. You can't undo this action.</p>
                                     <div class="p-2"></div>
-                                    <a href="#NeverGonnaGiveUp" id="deleteme" class="btn error">Disable Account</a>
+                                    <a href="#NeverGonnaGiveUp" id="deleteme" class="btn error" data-uid="<?= nonce_generator() ?>">Disable Account</a>
                                 </div>
-                                <div class="p-2"></div>
-
-
-                                <button type="submit" class="btn">Save Settings</button>
+                                <div class="p-2"></div>               
                             </form>
                         </div>
                     <?php

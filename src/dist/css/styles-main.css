@@ -9,13 +9,21 @@
 }
 
 body {
-    min-height: 100vh;
     overflow-x: hidden;
     font-family: -apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Ubuntu, roboto, noto, arial, sans-serif;
     background: hsla(var(--p-color), 50%, 9%, 4%);
     color: var(--dark-color);
     font-size: 0.9rem;
     line-height: 25px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    scroll-behavior: smooth;
+    text-rendering: optimizeSpeed;
+}
+
+.container-fluid {
+    flex: 1 auto;
 }
 
 
@@ -381,7 +389,7 @@ h6 {
 :disabled,
 .disabled {
     cursor: not-allowed;
-    opacity: 0.6;
+    opacity: 0.3;
 }
 
 
@@ -679,4 +687,19 @@ h6 {
     background: linear-gradient(90deg, hsla(var(--p-color), 50%, 70%, 100%) 0%, hsla(var(--p-color), 50%, 50%, 100%) 100%);
     border-radius: 4px;
     transition: all 0.2s ease !important;
+}
+
+
+/**
+**
+** Twemoji
+**
+**/
+
+img.emoji {
+    height: 1em !important;
+    width: 1em !important;
+    margin: 0 .05em 0 .1em;
+    vertical-align: -0.1em;
+    display: inline;
 }
