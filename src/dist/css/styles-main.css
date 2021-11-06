@@ -175,6 +175,24 @@ body {
     font-size: 1.4rem;
 }
 
+.btn.outlined {
+    background: transparent;
+    box-shadow: inset 0px 0px 0px 2px var(--primary-color);
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.btn.outlined:hover,
+.btn.outlined:focus-visible {
+    box-shadow: inset 0px 0px 0px 2px hsla(var(--p-color), 50%, 40%, 100%);
+    color: hsla(var(--p-color), 50%, 40%, 100%);
+}
+
+.btn.error {
+    --p-color: 1;
+    font-weight: 400;
+}
+
 
 /**
 **
@@ -230,6 +248,11 @@ article {
     background: var(--light-color);
     color: var(--dark-color);
     font-size: 0.8rem;
+    transition: opacity 0.2s ease;
+}
+
+#footer.show {
+    opacity: 1;
 }
 
 
@@ -266,6 +289,22 @@ hr {
 
 hr:hover {
     width: 25%;
+}
+
+fieldset {
+    border: 1px solid var(--dark-color);
+    padding: 15px 14px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+legend {
+    font-size: 1rem;
+}
+
+fieldset:hover,
+fieldset:focus-within {
+    border-color: hsla(var(--p-color), 50%, 50%, 100%);
 }
 
 table,
@@ -337,6 +376,12 @@ h6 {
 
 .c-d-n * {
     display: none;
+}
+
+:disabled,
+.disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
 }
 
 
@@ -415,9 +460,7 @@ h6 {
     transition: box-shadow 0.2s ease;
     word-wrap: break-word;
     overflow: hidden;
-    min-width: 312px;
     margin: 10px;
-    width: max-content;
 }
 
 .post-box:focus-within {
@@ -621,4 +664,19 @@ h6 {
     .hide-on-mobile {
         display: none;
     }
+}
+
+
+/**
+**
+** Instantclick bar
+**
+**/
+
+#instantclick-bar {
+    height: 4px !important;
+    background: hsla(var(--p-color), 50%, 50%, 100%);
+    background: linear-gradient(90deg, hsla(var(--p-color), 50%, 70%, 100%) 0%, hsla(var(--p-color), 50%, 50%, 100%) 100%);
+    border-radius: 4px;
+    transition: all 0.2s ease !important;
 }

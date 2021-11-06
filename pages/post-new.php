@@ -172,7 +172,7 @@ echo show_header("Create post", $a);
             <h2>Upload cover image</h2>
             <div id="imagePreview"></div>
             <label for="file" class="btn">Upload Image</label>
-            <input type="file" id="file" style="opacity: 0;height:1px;width:1px;overflow:hidden">
+            <input type="file" id="file" >
         </div>
     </div>
 

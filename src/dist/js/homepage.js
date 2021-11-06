@@ -4,6 +4,6 @@
         setTimeout(() => {
             $(".c-d-n").removeClass("c-d-n");
             $("#loading-screen").remove();
-        }, 500);
+        }, 50);
     });
 }(jQuery));

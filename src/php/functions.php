@@ -239,7 +239,26 @@ function share_buttons()
 <?php
     return ob_get_clean();
 }
-
+/**
+ * 
+ * 
+ * Get current page url
+ * 
+ */
+function current_url()
+{
+    $pageURL = 'http';
+    if (isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] == "on") {
+        $pageURL .= "s";
+    }
+    $pageURL .= "://";
+    if ($_SERVER["SERVER_PORT"] != "80") {
+        $pageURL .= $_SERVER["SERVER_NAME"] . ":" . $_SERVER["SERVER_PORT"] . $_SERVER["REQUEST_URI"];
+    } else {
+        $pageURL .= $_SERVER["SERVER_NAME"] . $_SERVER["REQUEST_URI"];
+    }
+    return $pageURL;
+}
 /**
  * 
  * Header
@@ -301,7 +320,7 @@ function show_header($title = "", $additional = "")
                 <?php
                 } else {
                 ?>
-                    <a href="<?= BASEPATH ?>/pages/post-new.php" class="btn lg">Create Post</a>
+                    <a href="<?= BASEPATH ?>/pages/post-new.php" data-no-instant class="btn lg">Create Post</a>
                     <a href="<?= BASEPATH ?>/pages/dashboard.php/notifications" class="btn lg ghost rounded"><i class="mdi mdi-bell"></i></a>
                     <a href="<?= BASEPATH ?>/pages/dashboard.php" class="btn lg ghost rounded"><i class="mdi mdi-account"></i></a>
                 <?php } ?>

@@ -41,66 +41,105 @@
         }
         ?>
     </div>
-    <div id="homepage-middle" class="col-xs-12 col-sm-7 row c-d-n">
+    <div id="homepage-middle" class="col-xs-12 col-sm-8">
+        <?php
+        /**
+         * Find the active page
+         */
+        if (isset($_GET['route'])) {
+            if ($_GET['route'] == "feed") {
+                $active = "feed";
+            }
+            /**
+             * Trending page
+             */
+            else if ($_GET['route'] == "trending" or strpos($_GET['route'], "trending") !== false) {
+                $active = "trending";
+            }
+            /**
+             * Latest posts page
+             */
+            else if ($_GET['route'] == "new" or strpos($_GET['route'], "new") !== false) {
+                $active = "new";
+            }
+            /**
+             * Random posts page
+             */
+            else if ($_GET['route'] == "random" or strpos($_GET['route'], "random") !== false) {
+                $active = "random";
+            }
+            /**
+             * 404 page
+             */
+            else {
+                require "../pages/404.php";
+                die();
+            }
+        } else {
+            $active = "feed";
+        }
+        ?>
+        <div id="homepage-toggle">
+            <a href="<?= BASEPATH ?>/" class="btn <?= ($active == "feed") ? "" : "ghost" ?>  small">Feed</a>
+            <a href="<?= BASEPATH ?>/filter/trending" class="btn small <?= ($active == "trending") ? "" : "ghost" ?>">Trending</a>
+            <a href="<?= BASEPATH ?>/filter/new" class="btn small <?= ($active == "new") ? "" : "ghost" ?>">New</a>
+            <a href="<?= BASEPATH ?>/filter/random" class="btn small <?= ($active == "random") ? "" : "ghost" ?>">Random</a>
+        </div>
         <div id="loading-screen" style="display: block !important;margin:auto">
             <div class="loader" style="display: block !important;margin:auto"></div>
         </div>
-        <div id="homepage-toggle">
-            <a href="#" class="btn small">Feed</a>
-            <a href="#" class="btn small ghost">Trending</a>
-            <a href="#" class="btn small ghost">New</a>
-            <a href="#" class="btn small ghost">Random</a>
-        </div>
-        <?php
-        /**
-         * Show posts
-         */
-        if (!logged_in()) {
-            $results = DB::query("SELECT * FROM posts");
-        } else {
+        <div class="c-d-n">
+            <?php
             /**
-             * Customize the feed
+             * Show posts
              */
-            $results = DB::query("SELECT * FROM posts");
-        }
-        foreach ($results as $row) {
-        ?>
-            <div class="post-box col">
-                <?php
-                /* Post URL */
-                $post_url = BASEPATH . "/post/" . str_replace(" ", "-", $row['title']) . "-" . $row['purl'];
-                ?>
-                <a href="<?= $post_url  ?>"><?= $row['title'] ?></a>
-                <?php
+            if (!logged_in()) {
+                $results = DB::query("SELECT * FROM posts");
+            } else {
                 /**
-                 * Get Post user data
+                 * Customize the feed
                  */
-                $account = DB::queryFirstRow("SELECT * FROM users WHERE id=%s", $row['creator']);
-                ?>
-                <div class="post-box-bottom">
+                $results = DB::query("SELECT * FROM posts");
+            }
+            foreach ($results as $row) {
+            ?>
+                <div class="post-box">
                     <?php
-                    $tags = array_unique_multidimensional(explode(",", $row["tags"]));
-                    foreach ($tags as $tag) {
+                    /* Post URL */
+                    $post_url = BASEPATH . "/post/" . str_replace(" ", "-", $row['title']) . "-" . $row['purl'];
                     ?>
-                        <a href="<?= BASEPATH ?>/tag/<?= urlencode(htmlspecialchars($tag)) ?>" class="btn p-0 ghost small">#<?= htmlspecialchars($tag) ?></a>
-                    <?php } ?>
-                    <div class="profile-small">
-                        <div class="col-2">
-                            <img src="<?= get_gravatar(htmlspecialchars($account["email"])); ?>" class="rounded" title="<?= htmlspecialchars($account["username"]); ?> Profile Image">
-                        </div>
-                        <div class="col-10">
-                            <a href="<?= BASEPATH . "/account/" . $account["uname"] ?>">
-                                <?= htmlspecialchars($account["username"]) ?>
-                            </a>
+                    <a href="<?= $post_url  ?>"><?= $row['title'] ?></a>
+                    <?php
+                    /**
+                     * Get Post user data
+                     */
+                    $account = DB::queryFirstRow("SELECT * FROM users WHERE id=%s", $row['creator']);
+                    ?>
+                    <div class="post-box-bottom">
+                        <?php
+                        $tags = array_unique_multidimensional(explode(",", $row["tags"]));
+                        foreach ($tags as $tag) {
+                        ?>
+                            <a href="<?= BASEPATH ?>/tag/<?= urlencode(htmlspecialchars($tag)) ?>" class="btn p-0 ghost small">#<?= htmlspecialchars($tag) ?></a>
+                        <?php } ?>
+                        <div class="profile-small">
+                            <div class="col-2">
+                                <img src="<?= get_gravatar(htmlspecialchars($account["email"])); ?>" class="rounded" title="<?= htmlspecialchars($account["username"]); ?> Profile Image">
+                            </div>
+                            <div class="col-10">
+                                <a href="<?= BASEPATH . "/account/" . $account["uname"] ?>">
+                                    <?= htmlspecialchars($account["username"]) ?>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        <?php
-        }
-        ?>
+            <?php
+            }
+            ?>
+        </div>
     </div>
-    <div id="homepage-right" class="col-xs-12 col-sm-3">
+    <div id="homepage-right" class="col-xs-12 col-sm-2">
         <?php
         $results = DB::query("SELECT `content` FROM sideboxes WHERE `location` = 'homepage_right'");
 
