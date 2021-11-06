@@ -1,5 +1,5 @@
 # Blogg
-A platform like Forem created with PHP - still a work in progress so don't use it.
+A platform like Forem created with PHP - still a work in progress so don't use it. Also, you can join the [Discord Server](https://discord.gg/UhFSESvJMY).
 
 ## Screenshots
 ![image](https://user-images.githubusercontent.com/76736580/140002724-70c6c309-8ed0-47c6-b7f8-8cfdff789984.png)
