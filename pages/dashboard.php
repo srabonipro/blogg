@@ -343,37 +343,56 @@ else {
         /**
          * Reading List
          */
-        if (current_url() == BASEPATH . "/pages/dashboard.php/reading-list") {
+        if (
+            current_url() == BASEPATH . "/pages/dashboard.php/reading-list"
+            or
+            strpos(current_url(), 'reading-list') !== false
+        ) {
             $page = "reading-list";
         }
         /**
          * Notifications
          */
-        elseif (current_url() == BASEPATH . "/pages/dashboard.php/notifications") {
+        elseif (
+            current_url() == BASEPATH . "/pages/dashboard.php/notifications"
+            or strpos(current_url(), 'notifications') !== false
+        ) {
             $page = "notifications";
         }
         /**
          * Account
          */
-        elseif (current_url() == BASEPATH . "/pages/dashboard.php/account") {
+        elseif (
+            current_url() == BASEPATH . "/pages/dashboard.php/account"
+            or strpos(current_url(), 'account') !== false
+        ) {
             $page = "account";
         }
         /**
          * Posts
          */
-        elseif (current_url() == BASEPATH . "/pages/dashboard.php/posts") {
+        elseif (
+            current_url() == BASEPATH . "/pages/dashboard.php/posts"
+            or strpos(current_url(), 'posts') !== false
+        ) {
             $page = "posts";
         }
         /**
          * Email
          */
-        elseif (current_url() == BASEPATH . "/pages/dashboard.php/email") {
+        elseif (
+            current_url() == BASEPATH . "/pages/dashboard.php/email"
+            or strpos(current_url(), 'email') !== false
+        ) {
             $page = "email";
         }
         /**
          * Appearance
          */
-        elseif (current_url() == BASEPATH . "/pages/dashboard.php/appearance") {
+        elseif (
+            current_url() == BASEPATH . "/pages/dashboard.php/appearance"
+            or strpos(current_url(), 'appearance') !== false
+        ) {
             $page = "appearance";
         }
         /**
@@ -505,11 +524,15 @@ else {
                          */
                         if (count($notifications) == 0) {
                         ?>
-                            <div class="box">
+                            <div class="box mt-2">
                                 <h1><i class="mdi mdi-bell-sleep"></i></h1>
                                 <h5 class="m-0">You have no notifications.</h5>
                                 <?= placeholder_text() ?>
                             </div>
+                        <?php
+                        } else {
+                        ?>
+                            <div class="pt-4"></div>
                         <?php
                         }
 
@@ -549,12 +572,12 @@ else {
                         <h1>Account</h1>
                         <p>Here you can change your account settings.</p>
 
-                        <div class="row">
-                            <a href="<?= BASEPATH ?>/account/<?= $account["uname"] ?>" class="btn small mt-3 outlined" style="width: max-content;">View profile <i class="ms-1 mdi mdi-open-in-new"></i> </a>
+                        <div class="box mt-2">
+                            <a href="<?= BASEPATH ?>/account/<?= $account["uname"] ?>" class="btn small outlined" style="width: max-content;">View profile <i class="ms-1 mdi mdi-open-in-new"></i> </a>
 
                             <div class="p-2"></div>
 
-                            <form action="<?= BASEPATH ?>/pages/dashboard.php/account" id="personalinfoform" method="POST" class="col-md-10 box">
+                            <form action="<?= BASEPATH ?>/pages/dashboard.php/account" id="personalinfoform" method="POST">
                                 <div class="input-container">
                                     <label class="input-label">Profile picture</label>
                                     <img class="rounded" src="<?= get_gravatar($account["email"]) ?>" alt="Your profile picture">
@@ -604,6 +627,7 @@ else {
                                 <div class="p-2"></div>
                             </form>
                         </div>
+
                     <?php
                         break;
                         /**
