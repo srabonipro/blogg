@@ -10,7 +10,7 @@ require "../init.php";
 /**
  * Check if email verification
  */
-if (isset($_GET["verifyemail"])) {
+if (isset($_GET["verifyemail"]) and !logged_in()) {
 
     /**
      * Check if code empty
@@ -95,7 +95,7 @@ elseif (isset($_GET['login']) and !logged_in()) {
                         true
                     );
                 }
-                header("Location: " . BASEPATH);
+                header("Location: " . BASEPATH . "/pages/dashboard.php");
 
                 die("Login Success. <b>Please Wait 5 seconds</b>");
             } else {
@@ -106,7 +106,10 @@ elseif (isset($_GET['login']) and !logged_in()) {
         die("Please login with the same device you requested the login link");
     }
 } elseif (!logged_in()) {
-    die("You must be logged in");
+    /**
+     * Redirect to home
+     */
+    header("Location: " . BASEPATH);
 }
 /**
  * Update User info
@@ -117,7 +120,8 @@ elseif (
     isset($_POST['jt']) and
     isset($_POST['c']) and
     isset($_POST['co']) and
-    isset($_POST['m'])
+    isset($_POST['m']) and
+    logged_in()
 ) {
     /**
      * 
@@ -267,14 +271,6 @@ elseif (isset($_POST['markasread']) and isset($_POST['id']) and logged_in()) {
  */
 else {
     /**
-     * 
-     * Dashboard start
-     * 
-     */
-
-    echo show_header("Dashboard");
-
-    /**
      * Get Info
      */
 
@@ -291,6 +287,7 @@ else {
      */
 
     if (!completed_setup()) {
+        echo show_header("Complete Setup");
         /**
          * The setup 
          */
@@ -321,8 +318,19 @@ else {
             <button class="btn" type="submit">Submit</button>
         </form>
 
+        <?php
+        ob_start();
+        ?>
+        <script src="<?= BASEPATH ?>/src/dist/js/dashboard.js"></script>
     <?php
-    } else {
+        $footer = ob_get_clean();
+        echo show_footer($footer);
+    }
+
+    /**
+     * 
+     */
+    else {
         /**
          * 
          * 
@@ -374,36 +382,49 @@ else {
         else {
             $page = "normal";
         }
+
+        /**
+         * Show header
+         */
+        echo show_header("Dashboard");
     ?>
         <div class="p-2"></div>
 
-        <div class="row">
+        <section class="row">
+            <?php /*** ***/ ?>
             <div class="col-md-2">
+                <?php /*** Sidebar ***/ ?>
                 <div class="list">
                     <a class="list-item <?= ($page == "normal") ? "active" : "" ?>" href="<?= BASEPATH ?>/pages/dashboard.php/">
                         <i alt="Icon" class="list-item-icon mdi mdi-home"></i>
                         <span class="list-item-title">Overview</span>
                     </a>
+
                     <a class="list-item <?= ($page == "reading-list") ? "active" : "" ?>" href="<?= BASEPATH ?>/pages/dashboard.php/reading-list">
                         <i alt="Icon" class="list-item-icon mdi mdi-bookmark"></i>
                         <span class="list-item-title">Saved posts</span>
                     </a>
+
                     <a class="list-item <?= ($page == "notifications") ? "active" : "" ?>" href="<?= BASEPATH ?>/pages/dashboard.php/notifications">
                         <i alt="Icon" class="list-item-icon mdi mdi-bell"></i>
                         <span class="list-item-title">Notifications <?= (get_notifications_count() > 0) ? "<code class=\"rounded\"><b>" . get_notifications_count() . "</b></code>" : "" ?></span>
                     </a>
+
                     <a class="list-item <?= ($page == "account") ? "active" : "" ?>" href="<?= BASEPATH ?>/pages/dashboard.php/account">
                         <i alt="Icon" class="list-item-icon mdi mdi-account"></i>
                         <span class="list-item-title">Account</span>
                     </a>
+
                     <a class="list-item <?= ($page == "posts") ? "active" : "" ?>" href="<?= BASEPATH ?>/pages/dashboard.php/posts">
                         <i alt="Icon" class="list-item-icon mdi mdi-note-text-outline"></i>
                         <span class="list-item-title">Posts</span>
                     </a>
+
                     <a class="list-item <?= ($page == "email") ? "active" : "" ?>" href="<?= BASEPATH ?>/pages/dashboard.php/email">
                         <i alt="Icon" class="list-item-icon mdi mdi-shield-account"></i>
                         <span class="list-item-title">Email Settings</span>
                     </a>
+
                     <a class="list-item <?= ($page == "appearance") ? "active" : "" ?>" href="<?= BASEPATH ?>/pages/dashboard.php/appearance">
                         <i alt="Icon" class="list-item-icon mdi mdi-palette"></i>
                         <span class="list-item-title">Appearance</span>
@@ -421,6 +442,7 @@ else {
              */
             ?>
             <div class="col-md-10">
+                <div class="p-2"></div>
                 <?php
                 /**
                  * Sanitizes the data
@@ -468,8 +490,6 @@ else {
                     ?>
                         <h1>Notifications</h1>
                         <p>Here you can see all the notifications you have.</p>
-                        <div class="p-2"></div>
-
                         <?php
                         /**
                          * 
@@ -498,23 +518,23 @@ else {
                             $notification["date"] = time_elapsed_string($notification["date"]);
                         ?>
                             <div class="<?= ($notification["seen"] == "false") ? "new" : "normal" ?>-notification mb-4">
-                                <div class="new-notification-header">
-                                    <div class="new-notification-header-title">
+                                <header class="new-notification-header">
+                                    <p class="new-notification-header-title">
                                         <?= $notification["message"] ?>
-                                    </div>
-                                    <div class="new-notification-meta">
-                                        <p><?= $notification["date"] ?> -
-                                            <?php
-                                            if ($notification["seen"] == "false") {
-                                            ?> unread &nbsp;
-                                                <button class="btn small rounded markasread" data-id="<?= base64_encode($notification["id"]) ?>"><i class="mdi mdi-delete"></i></button>
-                                            <?php
-                                            } else {
-                                                echo "read </p>";
-                                            }
-                                            ?>
-                                    </div>
-                                </div>
+                                    </p>
+                                    <p class="new-notification-meta">
+                                    <p><?= $notification["date"] ?> -
+                                        <?php
+                                        if ($notification["seen"] == "false") {
+                                        ?> unread &nbsp; </p>
+                                    <button class="btn small rounded markasread" data-id="<?= base64_encode($notification["id"]) ?>"><i class="mdi mdi-delete"></i></button>
+                                <?php
+                                        } else {
+                                            echo "read </p>";
+                                        }
+                                ?>
+                                </p>
+                                </header>
                             </div>
                         <?php
                         }
@@ -529,12 +549,11 @@ else {
                         <h1>Account</h1>
                         <p>Here you can change your account settings.</p>
 
-                        <div class="p-2"></div>
-
                         <div class="row">
                             <a href="<?= BASEPATH ?>/account/<?= $account["uname"] ?>" class="btn small mt-3 outlined" style="width: max-content;">View profile <i class="ms-1 mdi mdi-open-in-new"></i> </a>
 
                             <div class="p-2"></div>
+
                             <form action="<?= BASEPATH ?>/pages/dashboard.php/account" id="personalinfoform" method="POST" class="col-md-10 box">
                                 <div class="input-container">
                                     <label class="input-label">Profile picture</label>
@@ -612,19 +631,40 @@ else {
                     ?>
                         <h1>Appearance</h1>
                         <p>Here you can change your appearance.</p>
+
+                        <form action="<?= BASEPATH . "/pages/dashboard.php/appearance" ?>" method="POST">
+                            <h3>Theme</h3>
+                            <div class="row">
+                                <label class="theme-radio" for="t-1">
+                                    <img src="<?= BASEPATH ?>/uploads/light-theme.png" alt="Light Theme">
+                                    <input type="radio" name="t" id="t-1">
+                                </label>
+
+                                <label class="theme-radio" for="t-2">
+                                    <img src="<?= BASEPATH ?>/uploads/dark-theme.png" alt="Dark Theme">
+                                    <input type="radio" name="t" id="t-2">
+                                </label>
+                            </div>
+                        </form>
                         <?php
                         break;
                         ?>
-            </div>
-        </div>
-<?php
+
+                <?php
                 }
-            }
+                ?>
+            </div>
+        </section>
+    <?php
+    }
 
+    /**
+     * Show footer
+     */
 
-            ob_start();
-?>
-<script src="<?= BASEPATH ?>/src/dist/js/dashboard.js"></script>
+    ob_start();
+    ?>
+    <script src="<?= BASEPATH ?>/src/dist/js/dashboard.js"></script>
 <?php
     $footer = ob_get_clean();
     echo show_footer($footer);
