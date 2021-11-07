@@ -129,8 +129,8 @@ if (isset($_POST["e"]) and isset($_POST["c"])) {
                             $mail->addAddress($email);
                             $mail->isHTML(true);
                             $mail->Subject = 'Login to your ' . FNAME . " Account";
-                            $mail->Body = 'To login to your ' . FNAME . " account, you need to click this link. Please also note that this link will expire in 2 days<br> \n " .
-                                "<a href='" . BASEPATH . "/pages/dashboard.php?login=" . base64_encode(hash__($loginhash,"encrypt")) . "'>" . BASEPATH . "/pages/dashboard.php?login=" . base64_encode(hash__($loginhash,"encrypt")) . "</a>";
+                            $mail->Body = email_template('Login to your ' . FNAME . " Account",'To login to your ' . FNAME . " account, you need to click this link. Please also note that this link will expire in 2 days<br> \n " .
+                                "<a href='" . BASEPATH . "/pages/dashboard.php?login=" . base64_encode(hash__($loginhash,"encrypt")) . "'>" . BASEPATH . "/pages/dashboard.php?login=" . base64_encode(hash__($loginhash,"encrypt")) . "</a>","Login");
                             $mail->send();
 
                             $s = true;

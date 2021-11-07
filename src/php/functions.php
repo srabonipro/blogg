@@ -145,6 +145,70 @@ function get_gravatar($email, $s = 80, $d = 'mp', $r = 'g', $img = false, $atts 
 }
 /**
  * 
+ * Get notifications count
+ * 
+ */
+function get_notifications_count()
+{
+    /**
+     * Check if logged in
+     */
+    if (logged_in()) {
+        /**
+         * Decrypt Email
+         */
+        $user = DB::queryFirstRow("SELECT `id` FROM users WHERE email=%s", hash__($_COOKIE['_loggedin__hash'], "decrypt"));
+
+        $notifications = DB::query("SELECT `id` FROM notifications WHERE user=%s AND `seen`='false'", $user["id"]);
+
+        $count = count($notifications);
+
+        if ($count == 0) {
+            $count = 0;
+        } else {
+            $count = $count;
+        }
+    } else {
+        $count = 0;
+    }
+    return $count;
+}
+/**
+ * 
+ * Time elapsed
+ * 
+ */
+function time_elapsed_string($datetime, $full = false)
+{
+    $now = new DateTime;
+    $ago = new DateTime($datetime);
+    $diff = $now->diff($ago);
+
+    $diff->w = floor($diff->d / 7);
+    $diff->d -= $diff->w * 7;
+
+    $string = array(
+        'y' => 'year',
+        'm' => 'month',
+        'w' => 'week',
+        'd' => 'day',
+        'h' => 'hour',
+        'i' => 'minute',
+        's' => 'second',
+    );
+    foreach ($string as $k => &$v) {
+        if ($diff->$k) {
+            $v = $diff->$k . ' ' . $v . ($diff->$k > 1 ? 's' : '');
+        } else {
+            unset($string[$k]);
+        }
+    }
+
+    if (!$full) $string = array_slice($string, 0, 1);
+    return $string ? implode(', ', $string) . ' ago' : 'just now';
+}
+/**
+ * 
  * Validate image
  * 
  */
@@ -171,6 +235,52 @@ function check_base64_image($base64)
     }
 
     return true;
+}
+/**
+ * 
+ * Email template
+ * 
+ */
+function email_template($title, $content, $heading)
+{
+    ob_start(); ?>
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title><?= $title . " " . FNAME ?></title>
+    </head>
+
+    <body style="background: #d7d9de;">
+        <table style='width: 80%;margin: 40px auto;font-family:"Roboto","Verdana",sans-serif;background: white;min-width: 300px;border-radius: 4px;padding: 10px 30px;'>
+            <tbody>
+                <tr>
+                    <td>
+                        <h1 style="font-size: 30px;font-weight: 500;"><?= $heading ?></h1>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="font-size: 16px;font-weight: 500;word-break:break-all">
+                        <?= $content ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p style="color: #5c5c5c;"><?= FNAME ?></p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+
+    </body>
+
+    </html>
+<?php
+    return ob_get_clean();
 }
 /**
  * 
@@ -208,6 +318,30 @@ function array_unique_multidimensional($array)
         }
     }
     return $result;
+}
+/**
+ * 
+ * Generate placeholder text
+ * 
+ */
+function placeholder_text($length = 10)
+{
+    $quotes = array(
+        "Be yourself; everyone else is already taken.",
+        "I love deadlines. I love the whooshing noise they make as they go by.",
+        "The most important thing is to enjoy your life - to be happy - it's all that matters.",
+        "I think you can have a lot of fun with a book. After all, you're reading it.",
+        "The truth is, everyone is going to hurt you. You just got to find the ones worth suffering for.",
+        "I love deadlines. I like the whooshing noise they make as they go by.",
+        "If you look at what you have in life, you'll always have more. If you look at what you don't have in life, you'll never have enough.",
+        "Life is what happens when you're busy making other plans.",
+        "The most common way people give up their power is by thinking they don't have any.",
+        "The best revenge is massive success.",
+        "People often say that motivation doesn't last. Well, neither does bathing.  That's why we recommend it daily.",
+        "Life shrinks or expands in proportion to one's courage.",
+        "Silence is golden"
+    );
+    return $quotes[array_rand($quotes)];
 }
 /**
  * 
@@ -261,6 +395,36 @@ function current_url()
 }
 /**
  * 
+ * 
+ * Nonce    
+ * 
+ */
+/**
+ * Generate nonce
+ */
+function nonce_generator()
+{
+    $nonce = md5(uniqid(rand(), true));
+    $_SESSION["nonce"] = $nonce;
+    return $nonce;
+}
+/**
+ * Verify nonce
+ */
+function nonce_verify($nonce)
+{
+    if (isset($_SESSION["nonce"])) {
+        if ($_SESSION["nonce"] == $nonce) {
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
+}
+/**
+ * 
  * Header
  * 
  */
@@ -305,6 +469,7 @@ function show_header($title = "", $additional = "")
     ?>
 
     <body class="<?= $bodyclass ?>">
+        <a href="<?= BASEPATH ?>/#main-content" id="skip-to-content">Skip To Content</a>
         <header id="header">
             <div class="start">
                 <a href="<?= BASEPATH ?>">
@@ -314,20 +479,37 @@ function show_header($title = "", $additional = "")
             </div>
             <div class="end">
                 <?php if (!logged_in()) {
+                    /**
+                     * If not logged in
+                     */
                 ?>
                     <a href="<?= BASEPATH ?>/pages/login.php" data-no-instant class="btn ghost">Login</a>
                     <a href="<?= BASEPATH ?>/pages/sign-up.php" data-no-instant class="btn">Sign Up</a>
                 <?php
                 } else {
+                    /**
+                     * If logged in
+                     */
+
+                    /**
+                     * Check notifications
+                     */
+                    if (get_notifications_count() == 0) {
+                        $not = "";
+                    } elseif (get_notifications_count() > 9) {
+                        $not = 'data-notifications="9+"';
+                    } else {
+                        $not = 'data-notifications="' . get_notifications_count() . '"';
+                    }
                 ?>
                     <a href="<?= BASEPATH ?>/pages/post-new.php" data-no-instant class="btn lg">Create Post</a>
-                    <a href="<?= BASEPATH ?>/pages/dashboard.php/notifications" class="btn lg ghost rounded"><i class="mdi mdi-bell"></i></a>
+                    <a href="<?= BASEPATH ?>/pages/dashboard.php/notifications" class="btn lg ghost rounded" <?= $not ?>><i class="mdi mdi-bell"></i></a>
                     <a href="<?= BASEPATH ?>/pages/dashboard.php" class="btn lg ghost rounded"><i class="mdi mdi-account"></i></a>
                 <?php } ?>
             </div>
         </header>
 
-        <div class="container-fluid">
+        <div class="container-fluid" id="main-content">
         <?php
         return ob_get_clean();
     }
@@ -361,8 +543,10 @@ function show_header($title = "", $additional = "")
         </footer>
         <script src="<?= BASEPATH ?>/src/dist/js/jquery.js"></script>
         <script src="<?= BASEPATH ?>/src/dist/js/sweetalert2.min.js"></script>
+        <script src="<?= BASEPATH ?>/src/dist/js/twemoji.min.js" data-no-instant></script>
         <script src="<?= BASEPATH ?>/src/dist/js/scripts-main.js"></script>
         <script src="<?= BASEPATH ?>/src/dist/js/instantclick.min.js" data-no-instant></script>
+
         <script data-no-instant>
             InstantClick.init();
         </script>

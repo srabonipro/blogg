@@ -95,7 +95,7 @@ elseif (isset($_GET['login']) and !logged_in()) {
                         true
                     );
                 }
-                header("Refresh:5");
+                header("Location: " . BASEPATH);
 
                 die("Login Success. <b>Please Wait 5 seconds</b>");
             } else {
@@ -218,6 +218,46 @@ elseif (
 }
 /**
  * 
+ * Notifications mark as read 
+ * 
+ */
+elseif (isset($_POST['markasread']) and isset($_POST['id']) and logged_in()) {
+    header('Content-Type: application/json; charset=utf-8');
+    /**
+     * Get user id
+     */
+    $query = "DELETE FROM `notifications` WHERE user=%s AND id=%s";
+    $user = DB::queryFirstRow("SELECT `id` FROM users WHERE email=%s", hash__($_COOKIE['_loggedin__hash'], "decrypt"));
+
+    /**
+     * Mark as read
+     */
+    try {
+        DB::query(
+            $query,
+            $user['id'],
+            base64_decode($_POST['id'])
+        );
+        $s = true;
+    }
+    /**
+     * Error
+     */
+    catch (Exception $th) {
+        $s = false;
+    }
+
+    /**
+     * 
+     * Shows the data
+     * 
+     */
+    $result = array("success" => $s);
+    echo json_encode($result);
+    die();
+}
+/**
+ * 
  * 
  * 
  * END all API stuff
@@ -293,15 +333,9 @@ else {
 
 
         /**
-         * Normal Dashboard
-         */
-        if (current_url() == BASEPATH . "/pages/dashboard.php/" or current_url() == BASEPATH . "/pages/dashboard.php") {
-            $page = "normal";
-        }
-        /**
          * Reading List
          */
-        elseif (current_url() == BASEPATH . "/pages/dashboard.php/reading-list") {
+        if (current_url() == BASEPATH . "/pages/dashboard.php/reading-list") {
             $page = "reading-list";
         }
         /**
@@ -335,10 +369,10 @@ else {
             $page = "appearance";
         }
         /**
-         * 404 
+         * Normal 
          */
         else {
-            die("<h1>Page Not Found</h1>");
+            $page = "normal";
         }
     ?>
         <div class="p-2"></div>
@@ -356,7 +390,7 @@ else {
                     </a>
                     <a class="list-item <?= ($page == "notifications") ? "active" : "" ?>" href="<?= BASEPATH ?>/pages/dashboard.php/notifications">
                         <i alt="Icon" class="list-item-icon mdi mdi-bell"></i>
-                        <span class="list-item-title">Notifications <code class="rounded"><b>1</b></code></span>
+                        <span class="list-item-title">Notifications <?= (get_notifications_count() > 0) ? "<code class=\"rounded\"><b>" . get_notifications_count() . "</b></code>" : "" ?></span>
                     </a>
                     <a class="list-item <?= ($page == "account") ? "active" : "" ?>" href="<?= BASEPATH ?>/pages/dashboard.php/account">
                         <i alt="Icon" class="list-item-icon mdi mdi-account"></i>
@@ -434,6 +468,57 @@ else {
                     ?>
                         <h1>Notifications</h1>
                         <p>Here you can see all the notifications you have.</p>
+                        <div class="p-2"></div>
+
+                        <?php
+                        /**
+                         * 
+                         * 
+                         * The notifications
+                         * 
+                         * 
+                         */
+                        $notifications = DB::query("SELECT * FROM notifications WHERE user=%i ORDER BY `seen` ASC", $account["id"]);
+
+                        /**
+                         * Check if no notifications
+                         */
+                        if (count($notifications) == 0) {
+                        ?>
+                            <div class="box">
+                                <h1><i class="mdi mdi-bell-sleep"></i></h1>
+                                <h5 class="m-0">You have no notifications.</h5>
+                                <?= placeholder_text() ?>
+                            </div>
+                        <?php
+                        }
+
+                        foreach ($notifications as $notification) {
+                            $notification["message"] = htmlspecialchars($notification["message"]);
+                            $notification["date"] = time_elapsed_string($notification["date"]);
+                        ?>
+                            <div class="<?= ($notification["seen"] == "false") ? "new" : "normal" ?>-notification mb-4">
+                                <div class="new-notification-header">
+                                    <div class="new-notification-header-title">
+                                        <?= $notification["message"] ?>
+                                    </div>
+                                    <div class="new-notification-meta">
+                                        <p><?= $notification["date"] ?> -
+                                            <?php
+                                            if ($notification["seen"] == "false") {
+                                            ?> unread &nbsp;
+                                                <button class="btn small rounded markasread" data-id="<?= base64_encode($notification["id"]) ?>"><i class="mdi mdi-delete"></i></button>
+                                            <?php
+                                            } else {
+                                                echo "read </p>";
+                                            }
+                                            ?>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php
+                        }
+                        ?>
                     <?php
                         break;
                         /**
@@ -447,6 +532,9 @@ else {
                         <div class="p-2"></div>
 
                         <div class="row">
+                            <a href="<?= BASEPATH ?>/account/<?= $account["uname"] ?>" class="btn small mt-3 outlined" style="width: max-content;">View profile <i class="ms-1 mdi mdi-open-in-new"></i> </a>
+
+                            <div class="p-2"></div>
                             <form action="<?= BASEPATH ?>/pages/dashboard.php/account" id="personalinfoform" method="POST" class="col-md-10 box">
                                 <div class="input-container">
                                     <label class="input-label">Profile picture</label>
@@ -494,7 +582,7 @@ else {
                                     <div class="p-2"></div>
                                     <a href="#NeverGonnaGiveUp" id="deleteme" class="btn error" data-uid="<?= nonce_generator() ?>">Disable Account</a>
                                 </div>
-                                <div class="p-2"></div>               
+                                <div class="p-2"></div>
                             </form>
                         </div>
                     <?php

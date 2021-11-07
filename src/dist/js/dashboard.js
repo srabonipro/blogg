@@ -1,5 +1,5 @@
-(function($) {
-    $("#gettingstarted").submit(function(e) {
+(function ($) {
+    $("#gettingstarted").submit(function (e) {
         e.preventDefault();
         $("input , button, textarea").prop("disabled", true);
 
@@ -14,7 +14,7 @@
                 co: $("#color").val(),
                 m: $("#meta").val(),
             },
-            success: function(r) {
+            success: function (r) {
                 if (r.success) {
                     window.location.reload();
                 } else {
@@ -28,6 +28,34 @@
             }
         });
 
+    });
+
+    /**
+     * Mark as read when button is clicked
+     */
+    $(".markasread[data-id]").click(function (e) {
+        e.preventDefault();
+        $(this).prop("disabled", true);
+        var id = $(this).data("id");
+        $.ajax({
+            type: "POST",
+            url: basepath + "/pages/dashboard.php",
+            data: {
+                markasread: "",
+                id: id
+            },
+            success: function (r) {
+                if (r.success) {
+                    window.location.reload();
+                } else {
+                    Swal.fire(
+                        'Error',
+                        "Something went wrong",
+                        'error'
+                    );
+                }
+            }
+        });
     });
 
 }(jQuery));

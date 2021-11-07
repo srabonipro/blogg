@@ -21,7 +21,7 @@ DB::$password = DBPASS;
 DB::$dbName = DBNAME;
 DB::$host = DBSERVER; //defaults to localhost if omitted
 DB::$port = '3306'; // defaults to 3306 if omitted
-DB::$encoding = 'utf8';
+DB::$encoding = 'utf8mb4';
 
 /*
 *

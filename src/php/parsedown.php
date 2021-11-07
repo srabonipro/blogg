@@ -5,8 +5,9 @@ require "parsedown/parsedown.php";
  */
 $Parsedown = new Parsedown();
 /**
- * Security
+ * Security & others
  */
 $Parsedown->setSafeMode(true);
 $Parsedown->setMarkupEscaped(true);
-
+$Parsedown->setUrlsLinked(true);
+$Parsedown->setBreaksEnabled(true);

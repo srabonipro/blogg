@@ -31,7 +31,7 @@ echo show_header($account["username"] . " on " . FNAME);
                     }
                 }
                 ?>
-                <button data-follow="" class="btn w-100" style="width: 100%;"><?= $fbtext ?></button>
+                <a <?= ($fbtext == "Edit profile") ? " href=\"".BASEPATH."/pages/dashboard.php/account\" " : "" ?> data-follow="" class="btn w-100" style="width: 100%;"><?= $fbtext ?></a>
             </div>
         </div>
     </div>
