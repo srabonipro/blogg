@@ -345,6 +345,52 @@ function placeholder_text($length = 10)
 }
 /**
  * 
+ * 
+ * Add notification
+ * 
+ */
+function add_notification($message, $user_id = "")
+{
+    /**
+     * No account & not logged in
+     */
+    if ($user_id == "" and !logged_in()) {
+        return false;
+        exit();
+    }
+    /**
+     * Logged in
+     */
+    elseif ($user_id == "" and logged_in()) {
+        $account = DB::queryFirstrow(
+            "SELECT * FROM `users` WHERE email=%s",
+            hash__($_COOKIE['_loggedin__hash'], "decrypt")
+        );
+        $user_id = $account["id"];
+        $message = $message;
+    }
+    /**
+     * Not / logged in 
+     */
+    else {
+        $account = $user_id;
+        $message = $message;
+    }
+    try {
+        DB::insert('notifications', [
+            'user' => $user_id,
+            'message' => $message,
+            "date" => date('d.m.Y H:i:s'),
+            'seen' => "false",
+            "id" => rand_id(5) . sha1(time()),
+        ]);
+        return true;
+    } catch (Exception $e) {
+        return false;
+    }
+}
+/**
+ * 
  * Share buttons
  * 
  */
@@ -425,6 +471,19 @@ function nonce_verify($nonce)
 }
 /**
  * 
+ * 
+ * Validate hex color
+ * 
+ */
+function validate_hex_color($color)
+{
+    if (ctype_xdigit($color) && strlen($color) == 6) {
+        return true;
+    }
+    return false;
+}
+/**
+ * 
  * Header
  * 
  */
@@ -469,7 +528,8 @@ function show_header($title = "", $additional = "")
     ?>
 
     <body class="<?= $bodyclass ?>">
-        <a href="<?= BASEPATH ?>/#main-content" id="skip-to-content">Skip To Content</a>
+        <a href="<?= current_url() ?>/#main-content" id="skip-to-content">Skip To Content</a>
+        <div id="snackbar-container"></div>
         <header id="header">
             <div class="start">
                 <a href="<?= BASEPATH ?>">
@@ -530,20 +590,24 @@ function show_header($title = "", $additional = "")
             foreach ($links as $link) {
             ?>
                 <a class="btn small ghost" href="<?= $link["value"] ?>">
-                    <i alt="Icon" class="list-item-icon mdi mdi-<?= $link["icon"] ?>"></i>
-                    <span class="list-item-title"><?= $link["title"] ?></span>
+                    <?= $link["title"] ?>
                 </a>
             <?php
             }
             ?>
             <div class="p-2"></div>
-            <p>&copy; <?= date("Y"); ?>
-                <a href="<?= BASEPATH ?>"><?= FNAME ?></a> All rights reserved
-            </p>
+            <p>&copy; <?= date("Y"); ?></p>
+            <?php
+            $config = DB::queryFirstRow("SELECT * FROM config WHERE `name`='ftagline'");
+            ?>
+
+            <p><a href="<?= BASEPATH ?>"><?= FNAME ?></a> - <?= $config["value"] ?>.</p>
+            <p>All rights reserved</p>
         </footer>
         <script src="<?= BASEPATH ?>/src/dist/js/jquery.js"></script>
         <script src="<?= BASEPATH ?>/src/dist/js/sweetalert2.min.js"></script>
         <script src="<?= BASEPATH ?>/src/dist/js/twemoji.min.js" data-no-instant></script>
+        <script src="<?= BASEPATH ?>/src/dist/js/popper.min.js"></script>
         <script src="<?= BASEPATH ?>/src/dist/js/scripts-main.js"></script>
         <script src="<?= BASEPATH ?>/src/dist/js/instantclick.min.js" data-no-instant></script>
 

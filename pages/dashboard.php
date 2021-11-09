@@ -107,9 +107,9 @@ elseif (isset($_GET['login']) and !logged_in()) {
     }
 } elseif (!logged_in()) {
     /**
-     * Redirect to home
+     * Redirect to login page
      */
-    header("Location: " . BASEPATH);
+    header("Location:" . BASEPATH . "/pages/login.php");
 }
 /**
  * Update User info
@@ -121,6 +121,7 @@ elseif (
     isset($_POST['c']) and
     isset($_POST['co']) and
     isset($_POST['m']) and
+    isset($_POST['u']) and
     logged_in()
 ) {
     /**
@@ -134,6 +135,12 @@ elseif (
     $company = $_POST["c"];
     $color = $_POST["co"];
     $meta = $_POST["m"];
+    $username = $_POST["u"];
+
+    /**
+     * Remove all characters except letters and numbers
+     */
+    $username = preg_replace("/[^A-Za-z0-9 ]/", '', $username);
 
     $m = "";
 
@@ -150,6 +157,7 @@ elseif (
             'company' => $company,
             'color' => $color,
             'meta' => $meta,
+            'username' => $username,
         )
     );
 
@@ -181,26 +189,40 @@ elseif (
     }
 
     if ($s) {
-        try {
-            DB::update(
-                'users',
-                [
-                    'username' => $name,
-                    'meta' => $meta,
-                    'firstrun' => "false",
-                    'color' => $color,
-                    'job' => $job_title,
-                    'company' => $company
-                ],
-                "email=%s",
-                hash__($_COOKIE['_loggedin__hash'], "decrypt")
-            );
-            $s = true;
-        } catch (Exception $th) {
+        /**
+         * Check if username is taken
+         */
+        $username_check = DB::queryFirstRow("SELECT * FROM users WHERE uname=%s", $username);
+
+        if (isset($username_check['id'])) {
             $s = false;
-            ob_start();
-            echo $th;
-            $m = ob_get_clean();
+            $m = "Username already taken";
+        } else {
+            if(validate_hex_color($color)) {
+                try {
+                    DB::update(
+                        'users',
+                        [
+                            'username' => $name,
+                            'meta' => $meta,
+                            'firstrun' => "false",
+                            'color' => $color,
+                            'job' => $job_title,
+                            'company' => $company
+                        ],
+                        "email=%s",
+                        hash__($_COOKIE['_loggedin__hash'], "decrypt")
+                    );
+                    $s = true;
+                } catch (Exception $th) {
+                    $s = false;
+                    $m = "Server Error";
+                }
+            }
+            else {
+                $s = false;
+                $m = "Invalid color";
+            }
         }
     }
 
@@ -312,6 +334,10 @@ else {
                 <input type="color" id="color" class="input" required>
             </div>
             <div class="input-container">
+                <label for="username" class="input-label">Username* (Can't change again)</label>
+                <input type="text" id="username" class="input" required>
+            </div>
+            <div class="input-container">
                 <label for="meta" class="input-label">Your meta(Optional)</label>
                 <textarea id="meta" rows="4" class="input"></textarea>
             </div>
@@ -349,6 +375,16 @@ else {
             strpos(current_url(), 'reading-list') !== false
         ) {
             $page = "reading-list";
+        }
+        /**
+         * Organizations
+         */
+        elseif (
+            current_url() == BASEPATH . "/pages/dashboard.php/my-orgs"
+            or
+            strpos(current_url(), 'my-orgs') !== false
+        ) {
+            $page = "my-orgs";
         }
         /**
          * Notifications
@@ -444,6 +480,11 @@ else {
                         <span class="list-item-title">Email Settings</span>
                     </a>
 
+                    <a class="list-item <?= ($page == "my-orgs") ? "active" : "" ?>" href="<?= BASEPATH ?>/pages/dashboard.php/my-orgs">
+                        <i alt="Icon" class="list-item-icon mdi mdi-account-group"></i>
+                        <span class="list-item-title">My Organizations</span>
+                    </a>
+
                     <a class="list-item <?= ($page == "appearance") ? "active" : "" ?>" href="<?= BASEPATH ?>/pages/dashboard.php/appearance">
                         <i alt="Icon" class="list-item-icon mdi mdi-palette"></i>
                         <span class="list-item-title">Appearance</span>
@@ -500,6 +541,7 @@ else {
                     ?>
                         <h1>Reading list</h1>
                         <p>Here you can see all the posts you have saved.</p>
+                        <div class="p-2"></div>
                     <?php
                         break;
                         /**
@@ -509,59 +551,132 @@ else {
                     ?>
                         <h1>Notifications</h1>
                         <p>Here you can see all the notifications you have.</p>
-                        <?php
+                        <div class="p-2"></div>
+                        <div class="mt-2">
+                            <?php
+                            /**
+                             * 
+                             * 
+                             * The notifications
+                             * 
+                             * 
+                             */
+                            $notifications = DB::query("SELECT * FROM notifications WHERE user=%s ORDER BY `date` DESC", $account["id"]);
+
+
+                            /**
+                             * Check if no notifications
+                             */
+                            if (count($notifications) == 0) {
+                            ?>
+
+                                <div class="box">
+                                    <h1><i class="mdi mdi-bell-sleep"></i></h1>
+                                    <h5 class="m-0">You have no notifications.</h5>
+                                    <?= placeholder_text() ?>
+                                </div>
+
+                            <?php
+                            } else {
+                            ?>
+                                <div class="pt-4"></div>
+                            <?php
+                            }
+
+                            foreach ($notifications as $notification) {
+                                $notification["date"] = time_elapsed_string($notification["date"]);
+                            ?>
+                                <div class="new-notification-header mb-2 p-3">
+                                    <div style="flex: 10;">
+                                        <?= $notification["message"] ?>
+                                    </div>
+
+                                    <div class="new-notification-meta" style="flex: 2;text-align: right;">
+                                        <p><?= $notification["date"] ?>
+                                            <button class="btn small rounded markasread" data-id="<?= base64_encode($notification["id"]) ?>"><i class="mdi mdi-delete"></i></button>
+
+                                    </div>
+                                </div>
+                            <?php
+                            }
+                            ?>
+                        </div>
+                    <?php
+                        break;
                         /**
-                         * 
-                         * 
-                         * The notifications
-                         * 
-                         * 
+                         * Organsiation
                          */
-                        $notifications = DB::query("SELECT * FROM notifications WHERE user=%i ORDER BY `seen` ASC", $account["id"]);
+                    case "my-orgs":
+                    ?>
+                        <h1>My Organizations</h1>
+                        <p>Here you can see all the organizations you created and part of.</p>
+                        <div class="p-2"></div>
+
+                        <h3>Joined</h3>
+                        <?php
+                        $orgs = DB::query("SELECT * FROM orgmembers WHERE `user` = %s", $account["id"]);
 
                         /**
-                         * Check if no notifications
+                         * No organizations joined
                          */
-                        if (count($notifications) == 0) {
+                        if (count($orgs) == 0) {
                         ?>
-                            <div class="box mt-2">
-                                <h1><i class="mdi mdi-bell-sleep"></i></h1>
-                                <h5 class="m-0">You have no notifications.</h5>
+                            <div class="box">
+                                <h1><i class="mdi mdi-account-multiple-plus"></i></h1>
+                                <h5 class="m-0">You have no organizations.</h5>
                                 <?= placeholder_text() ?>
                             </div>
-                        <?php
+                            <?php
                         } else {
-                        ?>
-                            <div class="pt-4"></div>
-                        <?php
-                        }
+                            /**
+                             * Show the organizations
+                             */
+                            foreach ($orgs as $org) {
+                                $org = DB::queryFirstRow("SELECT * FROM organizations WHERE id=%s", $org["orgid"]);
 
-                        foreach ($notifications as $notification) {
-                            $notification["message"] = htmlspecialchars($notification["message"]);
-                            $notification["date"] = time_elapsed_string($notification["date"]);
-                        ?>
-                            <div class="<?= ($notification["seen"] == "false") ? "new" : "normal" ?>-notification mb-4">
-                                <header class="new-notification-header">
-                                    <p class="new-notification-header-title">
-                                        <?= $notification["message"] ?>
-                                    </p>
-                                    <p class="new-notification-meta">
-                                    <p><?= $notification["date"] ?> -
-                                        <?php
-                                        if ($notification["seen"] == "false") {
-                                        ?> unread &nbsp; </p>
-                                    <button class="btn small rounded markasread" data-id="<?= base64_encode($notification["id"]) ?>"><i class="mdi mdi-delete"></i></button>
-                                <?php
-                                        } else {
-                                            echo "read </p>";
-                                        }
-                                ?>
-                                </p>
-                                </header>
-                            </div>
+                                /**
+                                 * Sanitize the data
+                                 */
+                                foreach ($org as $key => $value) {
+                                    $org[$key] = htmlspecialchars($value);
+                                }
+                            ?>
+                                <div class="box">
+                                    <h5> <?= $org["name"] ?> </h5>
+                                    <?= (isset($org["website"])) ? "<p>Website: " . $org["website"] . "</p>" : "" ?>
+                                    <?= (isset($org["email"])) ? "<p>Contact Email: " . $org["email"] . "</p>" : "" ?>
+                                    <?php
+                                    $members = DB::query("SELECT * FROM orgmembers WHERE orgid=%s", $org["id"]);
+
+                                    $members = count($members);
+                                    ?>
+                                    <p>Members: <?= $members ?></p>
+                                    <div class="p-2"></div>
+
+                                    <?php
+                                    /**
+                                     * Check if the user is the owner
+                                     */
+                                    if (!($account["id"] === $org["owner"]) == true) {
+                                    ?>
+                                        <button class="btn error" data-leave-org="<?= base64_encode($org["id"]) ?>">Leave Organsiation</button>
+                                    <?php
+                                    } else {
+                                        /**
+                                         * The user is the owner
+                                         */
+                                    ?>
+                                        <a class="btn" href="<?= BASEPATH . "/pages/org.php?id=" . $org["id"] ?>" data-nonce="<?= nonce_generator() ?>">Manage Organsiation</a>
+                                    <?php
+                                    }
+                                    ?>
+                                </div>
                         <?php
+                            }
                         }
                         ?>
+
+
                     <?php
                         break;
                         /**
@@ -571,7 +686,7 @@ else {
                     ?>
                         <h1>Account</h1>
                         <p>Here you can change your account settings.</p>
-
+                        <div class="p-2"></div>
                         <div class="box mt-2">
                             <a href="<?= BASEPATH ?>/account/<?= $account["uname"] ?>" class="btn small outlined" style="width: max-content;">View profile <i class="ms-1 mdi mdi-open-in-new"></i> </a>
 
@@ -652,23 +767,71 @@ else {
                          * Appearance
                          */
                     case "appearance":
+                        if (isset($_POST["t"])) {
+                            switch ($_POST["t"]) {
+                                case "1":
+                                    $theme = "light";
+                                    break;
+                                case "2":
+                                    $theme = "system";
+                                    break;
+                                case "3":
+                                    $theme = "dark";
+                                    break;
+                                default:
+                                    $theme = "light";
+                                    break;
+                            }
+
+                            DB::query("UPDATE users SET theme = %s WHERE id = %s", $theme, $account["id"]);
+
+                            $m = "<div class=\"notification success\">Saved Settings, <a class=\"btn small\" href=\"" . BASEPATH . "\\pages\\dashboard.php\\appearance\">Reload page</a></div>";
+                        }
                     ?>
                         <h1>Appearance</h1>
                         <p>Here you can change your appearance.</p>
+                        <div class="p-2"></div>
+                        <?php
 
+                        if (isset($m)) {
+                            echo $m;
+                        }
+
+                        switch ($account["theme"]) {
+                            case "light":
+                                $theme = "light";
+                                break;
+                            case "dark":
+                                $theme = "dark";
+                                break;
+                            case "system":
+                                $theme = "system";
+                                break;
+                            default:
+                                $theme = "light";
+                                break;
+                        }
+                        ?>
                         <form action="<?= BASEPATH . "/pages/dashboard.php/appearance" ?>" method="POST">
                             <h3>Theme</h3>
                             <div class="row">
                                 <label class="theme-radio" for="t-1">
                                     <img src="<?= BASEPATH ?>/uploads/light-theme.png" alt="Light Theme">
-                                    <input type="radio" name="t" id="t-1">
+                                    <input type="radio" name="t" id="t-1" <?= ($theme == "light") ? "checked" : "" ?> value="1">
+                                </label>
+
+                                <label class="theme-radio" for="t-2">
+                                    <img src="<?= BASEPATH ?>/uploads/system-theme.png" alt="System Theme">
+                                    <input type="radio" name="t" id="t-3" <?= ($theme == "system") ? "checked" : "" ?> value="2">
                                 </label>
 
                                 <label class="theme-radio" for="t-2">
                                     <img src="<?= BASEPATH ?>/uploads/dark-theme.png" alt="Dark Theme">
-                                    <input type="radio" name="t" id="t-2">
+                                    <input type="radio" name="t" id="t-2" <?= ($theme == "dark") ? "checked" : "" ?> value="3">
                                 </label>
                             </div>
+
+                            <button type="submit" class="btn mt-2">Save</button>
                         </form>
                         <?php
                         break;

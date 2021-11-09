@@ -13,6 +13,7 @@
                 c: $("#company").val(),
                 co: $("#color").val(),
                 m: $("#meta").val(),
+                u: $("#username").val(),
             },
             success: function (r) {
                 if (r.success) {
@@ -36,6 +37,7 @@
     $(".markasread[data-id]").click(function (e) {
         e.preventDefault();
         $(this).prop("disabled", true);
+        var t = $(this);
         var id = $(this).data("id");
         $.ajax({
             type: "POST",
@@ -46,7 +48,10 @@
             },
             success: function (r) {
                 if (r.success) {
-                    window.location.reload();
+                    t.parent().parent().parent().fadeOut(200);
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 800);
                 } else {
                     Swal.fire(
                         'Error',

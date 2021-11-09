@@ -138,8 +138,8 @@ if (isset($_POST["e"]) and isset($_POST["c"])) {
                             $mail->addAddress($email);
                             $mail->isHTML(true);
                             $mail->Subject = 'Verify Email to create your ' . FNAME . " Account";
-                            $mail->Body = 'To verify your email and to create your ' . FNAME . " account, you need to click this link and follow the instructions provided. <br> \n ". 
-                            "<a href='".BASEPATH."/pages/dashboard.php?verifyemail=".base64_encode($emailhash)."'>".BASEPATH."/pages/dashboard.php?verifyemail=".base64_encode($emailhash)."</a>";
+                            $mail->Body = email_template("Verify Email", 'To verify your email and to create your ' . FNAME . " account, you need to click this link and follow the instructions provided. <br> \n ". 
+                            "<a href='".BASEPATH."/pages/dashboard.php?verifyemail=".base64_encode($emailhash)."'>".BASEPATH."/pages/dashboard.php?verifyemail=".base64_encode($emailhash)."</a>","Verify email to create your account");
                             $mail->send();
 
                             $s = true;

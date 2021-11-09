@@ -1,6 +1,36 @@
 <?php
-if (!defined("D")) {
+if (!defined("D") and !isset($_POST["getprofiledata"]) and !isset($_POST["uid"])) {
     die();
+}
+
+if (isset($_POST["getprofiledata"]) and $_POST["uid"]) {
+    require "../init.php";
+    $account = DB::queryFirstRow("SELECT * FROM users WHERE id=%s", $_POST["uid"]);
+    $s = $name = $color = $avatar = $profile = $posts = $about = "";
+    if (!isset($account["id"])) {
+        $s = false;
+    } else {
+        foreach ($account as $key => $value) {
+            $account[$key] = htmlspecialchars($value);
+        }
+        $name = $account["username"];
+        $profile = $account["uname"];
+        $posts = count(DB::query("SELECT id FROM posts WHERE creator=%s", $account["id"]));
+        $about = $account["meta"];
+        $color = $account["color"];
+        $avatar = get_gravatar($account["email"]);
+        $s = true;
+    }
+    $account = array(
+        "success" => $s,
+        "name" => $name,
+        "profile" => BASEPATH."/account/".$profile,
+        "color" => $color,
+        "avatar" => $avatar,
+        "posts" => $posts,
+        "about" => $about,
+    );
+    die(json_encode($account));
 }
 
 $account = DB::queryFirstRow("SELECT * FROM users WHERE uname=%s", $_GET["route"]);
@@ -10,6 +40,7 @@ if (!isset($account["id"])) {
 } else {
     $account = $account;
 }
+
 ?>
 <?php
 echo show_header($account["username"] . " on " . FNAME);
@@ -31,7 +62,7 @@ echo show_header($account["username"] . " on " . FNAME);
                     }
                 }
                 ?>
-                <a <?= ($fbtext == "Edit profile") ? " href=\"".BASEPATH."/pages/dashboard.php/account\" " : "" ?> data-follow="" class="btn w-100" style="width: 100%;"><?= $fbtext ?></a>
+                <a <?= ($fbtext == "Edit profile") ? " href=\"" . BASEPATH . "/pages/dashboard.php/account\" " : "" ?> data-follow="" class="btn w-100" style="width: 100%;"><?= $fbtext ?></a>
             </div>
         </div>
     </div>
@@ -49,8 +80,7 @@ echo show_header($account["username"] . " on " . FNAME);
 
                 if (!isset($results[0]["id"])) {
                     echo "<h2>" . htmlspecialchars(strtok($account["username"], " ")) . " hasn't created posts yet<h2>";
-                }
-                else {
+                } else {
                     echo "<h2>Posts created by " . htmlspecialchars(strtok($account["username"], " ")) . "<h2><div class='p-2'></div>";
                 }
 

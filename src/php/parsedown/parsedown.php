@@ -1992,4 +1992,3 @@ class Parsedown
     );
 }
 
-require "extra.php";

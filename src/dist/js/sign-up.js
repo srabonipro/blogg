@@ -32,6 +32,9 @@
                         r.message,
                         'error'
                     );
+                    hcaptcha.render('h-captcha', {
+                        sitekey: sitekey
+                    });
                     $("input , button").prop("disabled", false);
                 }
             }

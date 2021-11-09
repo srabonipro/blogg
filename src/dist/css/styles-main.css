@@ -40,6 +40,14 @@ body {
     --error: #f50000;
 }
 
+.muted {
+    color: #4f4f4f !important;
+}
+
+.dark .muted {
+    color: #9a9a9a !important;
+}
+
 
 /**
 **
@@ -48,7 +56,7 @@ body {
 **/
 
 .dark {
-    background: hsla(var(--p-color), 50%, 9%, 90%);
+    background: hsla(var(--p-color), 50%, 1%, 90%);
     --light-color: #151515;
     --dark-color: #fff;
 }
@@ -198,7 +206,24 @@ body {
 
 .btn.error {
     --p-color: 1;
+    color: hsla(var(--p-color), 50%, 50%, 100%);
     font-weight: 400;
+}
+
+.btn.black {
+    color: var(--light-color);
+    background: var(--dark-color);
+}
+
+.btn.black.ghost {
+    color: var(--dark-color);
+    background: transparent;
+}
+
+.btn.black.ghost:hover,
+.btn.black.ghost:focus-visible {
+    color: var(--dark-color);
+    background: hsla(var(--p-color), 50%, 50%, 10%);
 }
 
 
@@ -471,6 +496,15 @@ h6 {
     margin: 10px;
 }
 
+.post-box a {
+    color: var(--dark-color);
+}
+
+.post-box a:hover,
+.post-box a:focus-visible {
+    color: var(--primary-color);
+}
+
 .post-box:focus-within {
     box-shadow: 0px 0px 0px 6px hsla(var(--p-color), 50%, 50%, 10%);
 }
@@ -554,6 +588,10 @@ h6 {
     --primary-color: var(--error);
 }
 
+.notification.success {
+    --primary-color: #06af06;
+}
+
 
 /**
 **
@@ -596,69 +634,40 @@ h6 {
 **/
 
 .profile-small {
-    position: relative;
-    overflow: hidden;
-    font-size: 0.9rem;
-    display: flex;
-    margin-top: 10px;
-    width: max-content;
+    display: inline-flex;
     align-items: center;
-    justify-content: start;
     border-radius: 4px;
-    padding: 0px 10px;
-    padding-left: 0px;
+    font-size: 0.8rem;
     transition: all 0.2s ease;
+    min-width: max-content;
+    padding: 6px 0px;
 }
 
-.profile-small img {
+.profile-small .col-2 img {
+    border-radius: 100px;
+    max-width: 30px;
+    max-height: 30px;
+    min-width: 30px;
+    min-height: 30px;
     position: relative;
-    height: 30px !important;
-    margin-top: 7px;
 }
 
 .profile-small .col-2 {
-    margin-right: 7px;
+    display: flex;
+    flex-direction: column;
+    width: unset !important;
+    flex: unset !important;
+}
+
+.profile-small .col-10 {
+    width: unset !important;
+    flex: unset !important;
+    margin-left: 10px;
 }
 
 .profile-small:hover,
 .profile-small:focus-within {
     background: #1917170f;
-}
-
-
-/**
-**
-** Upload Box
-**
-**/
-
-.uploadarea {
-    border: 2px dashed #838383;
-    padding: 20px;
-    display: grid;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    font-size: 1rem;
-    border-radius: 4px;
-    transition: all 0.2s ease;
-    font-size: 0.9rem;
-    cursor: pointer;
-    color: #353535;
-    overflow: none;
-}
-
-.uploadarea i {
-    font-size: 2rem;
-}
-
-.uploadarea:hover {
-    border-color: var(--dark-color);
-    background: hsla(var(--p-color), 50%, 50%, 10%);
-}
-
-.uploadarea:focus:focus-within {
-    border-color: var(--primary-color);
 }
 
 
@@ -743,9 +752,7 @@ img.emoji {
 .new-notification-header {
     background: var(--light-color);
     color: var(--dark-color);
-    padding: 10px 18px;
-    border-radius: 4px 0px 0px 4px;
-    border-left: 8px solid var(--primary-color);
+    border-radius: 4px;
     overflow: hidden;
     display: flex;
     align-items: center;
@@ -754,17 +761,6 @@ img.emoji {
 
 .new-notification {
     position: relative;
-}
-
-.new-notification:after {
-    content: "New";
-    position: absolute;
-    top: -15px;
-    left: 0;
-    background: var(--error);
-    border-radius: 4px;
-    padding: 0px 10px;
-    font-size: 0.7rem;
 }
 
 .new-notification-meta {
@@ -781,20 +777,20 @@ img.emoji {
     position: absolute;
     top: 0;
     right: 0;
-    background: var(--error);
-    color: var(--dark-color);
-    min-height: 20px;
-    font-size: 1rem;
-    min-width: 20px;
-    max-height: 20px;
-    max-width: 20px;
+    background: #bf0303;
+    color: white;
+    min-height: 30px;
+    font-size: 16px;
+    min-width: 30px;
+    max-height: 30px;
+    max-width: 30px;
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 20px;
-    animation: pop 1s;
-    animation-iteration-count: 10;
+    font-weight: 800;
+    transform: scale(0.7) translate(40%, -28%);
 }
 
 @keyframes pop {
@@ -805,4 +801,115 @@ img.emoji {
     50% {
         transform: scale(1);
     }
+}
+
+
+/**
+**
+** Theme switcher
+**
+**/
+
+.theme-radio {
+    flex: 1;
+    max-width: 240px;
+    border-radius: 4px;
+    background: transparent;
+    position: relative;
+    margin: 0px 14px;
+    display: flex;
+    padding: 10px;
+    cursor: pointer
+}
+
+.theme-radio input {
+    appearance: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    cursor: pointer;
+}
+
+.theme-radio input:after {
+    content: "";
+    top: 0;
+    left: 0;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background: var(--dark-color);
+    opacity: 0.2;
+    z-index: -2;
+    transition: all 0.2s ease;
+}
+
+.theme-radio img {
+    pointer-events: none;
+}
+
+.theme-radio:hover input:after {
+    opacity: 0.6;
+}
+
+.theme-radio input:focus-visible {
+    outline: 4px solid #fff
+}
+
+.theme-radio input:checked:after {
+    opacity: 0.6;
+    box-shadow: inset 0px 0px 0px 20px var(--primary-color);
+}
+
+
+/**
+**
+**
+** Snackbar
+**
+**/
+
+#snackbar-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    padding: 20px;
+    z-index: 99999;
+}
+
+.snackbar {
+    margin-top: 20px;
+    background: var(--dark-color);
+    border-radius: 4px;
+    padding: 10px 14px;
+    font-size: 1.2rem;
+    color: var(--light-color);
+    display: flex;
+    align-items: center;
+    font-weight: 400;
+    transition: all 0.2s ease;
+    opacity: 0;
+    overflow: hidden;
+}
+
+.snackbar.show {
+    opacity: 1;
+}
+
+.snackbar .btn {
+    margin-left: 20px;
+}
+
+
+/**
+**
+** Tippy
+**
+**/
+
+.tippy-box {
+    background: var(--light-color) !important;
+    color: var(--dark-color) !important;
+    border: 1px solid var(--dark-color);
 }
