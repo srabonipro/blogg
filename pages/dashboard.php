@@ -198,7 +198,7 @@ elseif (
             $s = false;
             $m = "Username already taken";
         } else {
-            if(validate_hex_color($color)) {
+            if (validate_hex_color($color)) {
                 try {
                     DB::update(
                         'users',
@@ -218,8 +218,7 @@ elseif (
                     $s = false;
                     $m = "Server Error";
                 }
-            }
-            else {
+            } else {
                 $s = false;
                 $m = "Invalid color";
             }
@@ -432,6 +431,24 @@ else {
             $page = "appearance";
         }
         /**
+         * Badges
+         */
+        elseif (
+            current_url() == BASEPATH . "/pages/dashboard.php/badges"
+            or strpos(current_url(), 'badges') !== false
+        ) {
+            $page = "badges";
+        }
+        /**
+         * Social
+         */
+        elseif (
+            current_url() == BASEPATH . "/pages/dashboard.php/social"
+            or strpos(current_url(), 'social') !== false
+        ) {
+            $page = "social";
+        }
+        /**
          * Normal 
          */
         else {
@@ -483,6 +500,16 @@ else {
                     <a class="list-item <?= ($page == "my-orgs") ? "active" : "" ?>" href="<?= BASEPATH ?>/pages/dashboard.php/my-orgs">
                         <i alt="Icon" class="list-item-icon mdi mdi-account-group"></i>
                         <span class="list-item-title">My Organizations</span>
+                    </a>
+
+                    <a class="list-item <?= ($page == "social") ? "active" : "" ?>" href="<?= BASEPATH ?>/pages/dashboard.php/social">
+                        <i alt="Icon" class="list-item-icon mdi mdi-human-greeting-proximity"></i>
+                        <span class="list-item-title">Social</span>
+                    </a>
+
+                    <a class="list-item <?= ($page == "badges") ? "active" : "" ?>" href="<?= BASEPATH ?>/pages/dashboard.php/badges">
+                        <i alt="Icon" class="list-item-icon mdi mdi-shield-star"></i>
+                        <span class="list-item-title">Badges</span>
                     </a>
 
                     <a class="list-item <?= ($page == "appearance") ? "active" : "" ?>" href="<?= BASEPATH ?>/pages/dashboard.php/appearance">
@@ -542,6 +569,137 @@ else {
                         <h1>Reading list</h1>
                         <p>Here you can see all the posts you have saved.</p>
                         <div class="p-2"></div>
+                    <?php
+                        break;
+                        /**
+                         * Badges
+                         */
+                    case "badges":
+                    ?>
+                        <h1>Badges</h1>
+                        <p>Here you can see all the badges you have earned.</p>
+                        <div class="p-2"></div>
+                        <?php
+                        $badges = DB::query("SELECT * FROM earnedbadges WHERE user=%s", $account["id"]);
+
+                        if (count($badges) == 0) {
+                        ?>
+                            <div class="notification">
+                                <p>You have not earned any badges yet.</p>
+                            </div>
+                            <?php
+                        } else {
+                            echo "<div class=\"row p-2\">";
+                            foreach ($badges as $badge) {
+                                $_badge = DB::queryFirstRow("SELECT * FROM badges WHERE id=%s", $badge["badge"]);
+                            ?>
+                                <div class="box hoverable col" style="max-width: max-content;">
+                                    <i style="background: hsla(var(--p-color),50%,50%,10%);color: var(--primary-color);border-radius: 100px;font-size: 1.8rem;max-width: 50px;max-height: 50px;display: flex;min-height: 50px;min-width: 50px;align-items: center;justify-content: center;border: 1px solid #e2e2e2;" class="mdi mdi-<?= $_badge["icon"] ?>"></i>
+                                    <h3>
+                                        <?= $_badge["name"] ?>
+                                    </h3>
+                                    <p>
+                                        <?= $_badge["about"] ?>
+                                    </p>
+                                    <p class="muted" data-tooltip="<?= time_elapsed_string($badge["date"]) ?>">
+                                        You earned this badge on
+                                        <?php
+                                        $s = $badge["date"];
+                                        $dt = new DateTime($s);
+
+                                        $date = $dt->format('m/d/Y');
+
+
+                                        echo $date;
+                                        ?></p>
+                                </div>
+                        <?php
+                            }
+                            echo "</div>";
+                        }
+                        ?>
+                    <?php
+                        break;
+                        /**
+                         * Social
+                         */
+                    case "social":
+
+                        if (
+                            isset($_POST["facebook"]) &&
+                            isset($_POST["twitter"]) &&
+                            isset($_POST["instagram"]) &&
+                            isset($_POST["youtube"]) &&
+                            isset($_POST["github"])
+                        ) {
+                            $facebook = $_POST["facebook"];
+                            $twitter = $_POST["twitter"];
+                            $instagram = $_POST["instagram"];
+                            $youtube = $_POST["youtube"];
+                            $github = $_POST["github"];
+
+                            if (
+                                !empty($facebook) ||
+                                !empty($twitter) ||
+                                !empty($instagram) ||
+                                !empty($youtube) ||
+                                !empty($github)
+                            ) {
+                                try {
+                                    DB::update("users", array(
+                                        "facebook" => $facebook,
+                                        "twitter" => $twitter,
+                                        "instagram" => $instagram,
+                                        "youtube" => $youtube,
+                                        "github" => $github
+                                    ), "id=%s", $account["id"]);
+                                    $s = true;
+                                } catch (Exception $e) {
+                                    $s = false;
+                                }
+                            }
+                        }
+                    ?>
+                        <h1>Social</h1>
+                        <p>Here you can see all the social accounts you have connected.</p>
+                        <div class="p-2"></div>
+                        <?php
+                        if (isset($s) && $s) {
+                        ?>
+                            <div class="notification success mb-2">
+                                <p>Your social accounts have been updated! <a href="<?= current_url() ?>" class="btn small">Refresh page</a></p>
+                            </div>
+                        <?php
+                        }
+                        ?>
+                        <form class="box" action="<?= BASEPATH ?>/pages/dashboard.php/social" method="POST">
+                            <div class="input-container">
+                                <label for="facebook">Facebook Username <i class="mdi mdi-facebook"></i></label>
+                                <input placeholder="username" type="text" name="facebook" class="input" id="facebook" value="<?= $account["facebook"] ?>">
+                            </div>
+
+                            <div class="input-container">
+                                <label for="twitter">Twitter Username <i class="mdi mdi-twitter"></i></label>
+                                <input placeholder="username" type="text" name="twitter" class="input" id="twitter" value="<?= $account["twitter"] ?>">
+                            </div>
+
+                            <div class="input-container">
+                                <label for="instagram">Instagram Username <i class="mdi mdi-instagram"></i></label>
+                                <input placeholder="username" type="text" name="instagram" class="input" id="instagram" value="<?= $account["instagram"] ?>">
+                            </div>
+
+                            <div class="input-container">
+                                <label for="youtube">Youtube Username <i class="mdi mdi-youtube"></i></label>
+                                <input placeholder="username" type="text" name="youtube" class="input" id="youtube" value="<?= $account["youtube"] ?>">
+                            </div>
+                            
+                            <div class="input-container">
+                                <label for="github">Github Username <i class="mdi mdi-github"></i></label>
+                                <input placeholder="username" type="text" name="github" class="input" id="github" value="<?= $account["github"] ?>">
+                            </div>
+
+                            <button type="submit" class="btn">Save</button>
+                        </form>
                     <?php
                         break;
                         /**
@@ -643,8 +801,8 @@ else {
                             ?>
                                 <div class="box">
                                     <h5> <?= $org["name"] ?> </h5>
-                                    <?= (isset($org["website"])) ? "<p>Website: " . $org["website"] . "</p>" : "" ?>
-                                    <?= (isset($org["email"])) ? "<p>Contact Email: " . $org["email"] . "</p>" : "" ?>
+                                    <?= (!empty($org["website"])) ? "<p>Website: " . $org["website"] . "</p>" : "" ?>
+                                    <?= (!empty($org["email"])) ? "<p>Contact Email: " . $org["email"] . "</p>" : "" ?>
                                     <?php
                                     $members = DB::query("SELECT * FROM orgmembers WHERE orgid=%s", $org["id"]);
 
@@ -668,6 +826,7 @@ else {
                                     ?>
                                         <a class="btn" href="<?= BASEPATH . "/pages/org.php?id=" . $org["id"] ?>" data-nonce="<?= nonce_generator() ?>">Manage Organsiation</a>
                                     <?php
+                                        $orgowner = true;
                                     }
                                     ?>
                                 </div>
@@ -683,12 +842,25 @@ else {
                          * Account
                          */
                     case "account":
+                    if(
+                        isset($_POST["name"]) &&
+                        isset($_POST["meta"]) &&
+                        isset($_POST["color"]) &&
+                        isset($_POST["company"]) &&
+                        isset($_POST["job"]) &&
+                        isset($_POST["location"]) &&
+                        isset($_POST["workingon"]) 
+                    ) 
+                    {
+
+                    }
+                    
                     ?>
                         <h1>Account</h1>
                         <p>Here you can change your account settings.</p>
                         <div class="p-2"></div>
                         <div class="box mt-2">
-                            <a href="<?= BASEPATH ?>/account/<?= $account["uname"] ?>" class="btn small outlined" style="width: max-content;">View profile <i class="ms-1 mdi mdi-open-in-new"></i> </a>
+                            <a target="_blank" href="<?= BASEPATH ?>/account/<?= $account["uname"] ?>" class="btn small outlined" style="width: max-content;">View profile <i class="ms-1 mdi mdi-open-in-new"></i> </a>
 
                             <div class="p-2"></div>
 
@@ -701,12 +873,12 @@ else {
 
                                 <div class="input-container">
                                     <label for="name" class="input-label">Name</label>
-                                    <input type="text" class="input" id="name" name="name" required="" min="4" value="<?= $account["username"] ?>">
+                                    <input type="text" class="input" id="name" name="name" placeholder="Psst.. Don't keep me blank" required="" min="4" value="<?= $account["username"] ?>">
                                 </div>
 
                                 <div class="input-container">
                                     <label for="meta" class="input-label">Meta</label>
-                                    <textarea id="meta" rows="4" class="input"><?= $account["meta"] ?></textarea>
+                                    <textarea placeholder="I'm <?= $account["username"] ?>. I love dogs. I eat bananas..." id="meta" rows="4" class="input"><?= $account["meta"] ?></textarea>
                                 </div>
 
                                 <div class="input-container">
@@ -728,6 +900,16 @@ else {
                                 <div class="input-container">
                                     <label for="job" class="input-label">Job title</label>
                                     <input type="text" class="input" id="job" name="job" value="<?= $account["job"] ?>" placeholder="Your job title">
+                                </div>
+
+                                <div class="input-container">
+                                    <label for="workingon" class="input-label">Currently working on</label>
+                                    <input type="text" class="input" id="workingon" name="workingon" value="<?= $account["workingon"] ?>" placeholder="What are you working on?">
+                                </div>
+
+                                <div class="input-container">
+                                    <label for="location" class="input-label">Location</label>
+                                    <input type="text" class="input" id="location" name="location" value="<?= $account["location"] ?>" placeholder="Your location">
                                 </div>
 
                                 <button type="submit" class="btn">Save Settings</button>

@@ -175,6 +175,152 @@ function get_notifications_count()
 }
 /**
  * 
+ * 
+ * Follow / Unfollow user
+ * 
+ */
+function follow_user($user)
+{
+    /**
+     * Check if logged in
+     */
+    if (!logged_in()) {
+        return "Not logged in";
+    } else {
+        /**
+         * Decrypt Email and get user data
+         */
+        $current = DB::queryFirstRow("SELECT * FROM users WHERE email=%s", hash__($_COOKIE['_loggedin__hash'], "decrypt"));
+
+        /**
+         * Following user data
+         */
+        $following = DB::queryFirstRow("SELECT * FROM users WHERE id=%s", $user);
+
+        /**
+         * Sanitize
+         */
+        foreach ($following as $key => $value) {
+            $following[$key] = htmlspecialchars($value);
+        }
+
+        foreach ($current as $key => $value) {
+            $current[$key] = htmlspecialchars($value);
+        }
+        /**
+         * Account not found
+         */
+        if (!isset($following["id"])) {
+            return "Account not found";
+        }
+        /**
+         * Trying to follow self
+         */
+        elseif ($following["id"] == $current["id"]) {
+            return "Method not allowed";
+        } else {
+            /**
+             * Check if already following
+             */
+            $following_user = DB::queryFirstRow("SELECT * FROM `followers` WHERE `user`=%s AND `following`=%s LIMIT 1", $current["id"], $following["id"]);
+
+            /**
+             * Already following
+             */
+            if (isset($following_user["user"])) {
+                DB::query('DELETE FROM `followers` WHERE `user`=%s AND `following`=%s', $current["id"], $following["id"]);
+                return array("status" => "Follow");
+            }
+
+            /**
+             * Not following
+             */
+            else {
+                DB::insert('followers', array(
+                    'user' => $current["id"],
+                    'following' => $following["id"]
+                ));
+                $message = "
+                <div>
+                <img class=\"rounded\" src=\"".get_gravatar($current["email"],40)."\">
+                <br/>
+                  <a href=\"".BASEPATH.'\\'.'user'.'\\'.$current["uname"]."\" data-username=\"".$current["id"]."\">
+                  ".$current["username"]."
+                  </a>
+                   Started following you!
+                </div>
+                ";
+                add_notification($message, $following["id"]);
+                return array("status" => "Unfollow");
+            }
+        }
+    }
+}
+/**
+ * 
+ * 
+ * Check if follows
+ * 
+ */
+function is_following($who, $user = "")
+{
+   if(empty($user)) {
+       if(!logged_in()) {
+           return false;
+       }
+       else {
+           $user = DB::queryFirstrow("SELECT `id` FROM `users` WHERE `email`=%s", hash__($_COOKIE["_loggedin__hash"],"decrypt"));
+       }
+   }
+
+    $follower = DB::queryFirstrow("SELECT `id` FROM `users` WHERE `id`=%s", $who);
+    
+    /**
+     * Checks if accounts exist
+     */
+    if (!isset($follower["id"]) or !isset($user["id"])) {
+        return false;
+    } 
+    else {
+        /**
+         * Following
+         */
+        $follows = DB::queryFirstrow("SELECT * FROM `followers` WHERE `user` = %s AND `following` = %s", $user["id"], $follower["id"]);
+
+        if(isset($follows["user"])) {
+            return true;
+        }
+    }
+    return false;
+}
+/**
+ * 
+ * 
+ * Get routing URL
+ * 
+ */
+function get_route_url($url)
+{
+    $url = rtrim($url, '/');
+    $url = filter_var($url, FILTER_SANITIZE_URL);
+    return $url;
+}
+/**
+ * 
+ * 
+ * Obfuscate email
+ * 
+ */
+function obfuscate_email($email)
+{
+    $em   = explode("@", $email);
+    $name = implode('@', array_slice($em, 0, count($em) - 1));
+    $len  = floor(strlen($name) / 2);
+
+    return substr($name, 0, $len) . str_repeat('*', $len) . "@" . end($em);
+}
+/**
+ * 
  * Time elapsed
  * 
  */
@@ -472,15 +618,107 @@ function nonce_verify($nonce)
 /**
  * 
  * 
+ * Add badge to user
+ * 
+ */
+function add_badge($user_id, $badge_id)
+{
+    try {
+        if (count(DB::query("SELECT * FROM `earnedbadges` WHERE `user`=%s AND `badge`=%s", $user_id, $badge_id)) == 0) {
+            $badge = DB::queryFirstrow("SELECT * FROM `badges` WHERE `id`=%s", $badge_id);
+            if (count($badge) == 0) {
+                return false;
+            } else {
+                DB::insert('earnedbadges', [
+                    'user' => $user_id,
+                    'badge' => $badge_id,
+                    "date" => date('d.m.Y H:i:s'),
+                ]);
+                add_notification("<h3>You earned the " . $badge["name"]  . " badge!</h3><p>" . $badge["about"] . "</p>", $user_id);
+                return true;
+            }
+        } else {
+            return false;
+        }
+    } catch (Exception $e) {
+        return false;
+    }
+}
+/**
+ * 
+ * 
+ * Convert links into special content
+ * 
+ */
+function convert_links_to_special($string) {
+    /**
+     * Convert links to special content
+     * Don't convert links that are already in special content
+     * You can add more special content by adding more regular expressions
+     * WARNING! This is a very advanced feature and you should only use it if you know what you're doing 
+     */
+
+    /**
+     * Youtube
+     */
+    $string = preg_replace(
+        "/\<a href=\"\^youtube\.([a-zA-Z0-9_]*)\"\>(.*)\<\/a\>/",
+        "<iframe class=\"mt-2 mb-2\" width='100%' height='315' src='https://www.youtube.com/embed/$1' frameborder='0' loading=\"lazy\" allowfullscreen class=\"iframe-click-to-load\">
+        Loading video
+        </iframe>",
+        $string
+    );
+
+    /**
+     * Github gist
+     */
+    $string = preg_replace(
+        "/\<a href=\"\^gist\.([a-zA-Z0-9_]*)\"\>(.*)\<\/a\>/",
+        "<div data-github-gist-id=\"$1\" class=\"box\"><div class=\"loader\"></div>Loading gist</div>",
+        $string
+    );
+
+    /**
+     * Codepen
+     */
+    $string = preg_replace(
+        "/\<a href=\"\^codepen\.([a-zA-Z0-9_]*)\.([a-zA-Z0-9_]*)\"\>(.*)\<\/a\>/",
+        '<iframe class="mb-2 mt-2" height="400" style="width: 100%;" src="https://codepen.io/$1/embed/preview/$2?default-tab=result&theme-id=dark" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true"></iframe>',
+        $string
+    );
+
+    /**
+     * Codesandbox
+     */
+    $string = preg_replace(
+        "/\<a href=\"\^codesandbox\.([a-zA-Z0-9_-]*)\"\>(.*)\<\/a\>/",
+        '<iframe class="mb-2 mt-2" height="400" style="width: 100%;" src="https://codesandbox.io/embed/$1?fontsize=14&hidenavigation=1&theme=dark" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true"></iframe>',
+        $string
+    );
+
+    /**
+     * Tweet
+     */
+    $string = preg_replace(
+        "/\<a href=\"\^tweet\.([a-zA-Z0-9_]*)\.([a-zA-Z0-9_]*)\"\>(.*)\<\/a\>/",
+        '<blockquote class="twitter-tweet" data-dnt="true">
+        <p lang="en" dir="ltr"><a href="https://twitter.com/$1/status/$2">Loading tweet</a>
+    </blockquote>
+    <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>',
+        $string
+    );
+
+    return $string;
+}
+/**
+ * 
+ * 
  * Validate hex color
  * 
  */
 function validate_hex_color($color)
 {
-    if (ctype_xdigit($color) && strlen($color) == 6) {
-        return true;
-    }
-    return false;
+    return preg_match('/^#[a-f0-9]{6}$/i', $color);
 }
 /**
  * 
@@ -508,7 +746,6 @@ function show_header($title = "", $additional = "")
         <link rel="stylesheet" href="<?= BASEPATH ?>/src/dist/css/styles-main.css">
         <link rel="stylesheet" href="<?= BASEPATH ?>/src/dist/css/sweetalert2.css">
         <link rel="stylesheet" href="<?= BASEPATH ?>/src/dist/css/materialdesignicons.css">
-
         <style>
             :root {
                 --p-color: <?= FCOLOR ?>;
@@ -604,7 +841,7 @@ function show_header($title = "", $additional = "")
             <p><a href="<?= BASEPATH ?>"><?= FNAME ?></a> - <?= $config["value"] ?>.</p>
             <p>All rights reserved</p>
         </footer>
-        <script src="<?= BASEPATH ?>/src/dist/js/jquery.js"></script>
+        <script src="<?= BASEPATH ?>/src/dist/js/jquery.js" data-no-instant></script>
         <script src="<?= BASEPATH ?>/src/dist/js/sweetalert2.min.js"></script>
         <script src="<?= BASEPATH ?>/src/dist/js/twemoji.min.js" data-no-instant></script>
         <script src="<?= BASEPATH ?>/src/dist/js/popper.min.js"></script>

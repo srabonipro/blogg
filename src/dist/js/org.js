@@ -67,6 +67,7 @@
             success: function(r) {
                 setTimeout(function() {
                     $("#invitecode").val(r.code).attr("type", "text");
+                    showSnackbar('Invite code generated and saved', "Dismiss");
                     setTimeout(function() {
                         $("#invitecode").attr("type", "password");
                     }, 3000);

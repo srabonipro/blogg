@@ -327,8 +327,8 @@
     padding: 0 0 1.25em;
     border: none;
     border-radius: 5px;
-    background: #fff;
-    color: #545454;
+    background: var(--light-color);
+    color: var(--dark-color);
     font-family: inherit;
     font-size: 1rem;
 }
@@ -346,7 +346,7 @@
     max-width: 100%;
     margin: 0;
     padding: 0.8em 1em 0;
-    color: #595959;
+    color: inherit;
     font-size: 1.875em;
     font-weight: 600;
     text-align: center;
@@ -409,9 +409,9 @@
     border: 0;
     border-radius: 0.25em;
     background: initial;
-    background-color: #7367f0;
+    background-color: var(--primary-color);
     color: #fff;
-    font-size: 1em;
+    font-size: 0.8rem;
 }
 
 .swal2-styled.swal2-confirm:focus {

@@ -39,14 +39,14 @@ if (!defined("D")) {
         $user = DB::queryFirstRow("SELECT * FROM users WHERE id = %s", $post["creator"]);
         ?>
         <article id="article-<?= $post["id"] ?>" class="row ms-1">
-            <main class="col-md-9" id="post-content">
+            <main class="col-md-9 animated animation-fadeup" id="post-content">
                 <h1 id="title">
                     <?= htmlspecialchars($post["title"]) ?>
                 </h1>
-                <?= $Parsedown->text($post["content"]) ?>
+                <?= convert_links_to_special($Parsedown->text($post["content"])) ?>
             </main>
-            <aside class="col-md-3" id="post-sidebar" style="height: max-content;position:sticky;">
-                <div class="box">
+            <aside class="col-md-3 animated animation-fadeup" id="post-sidebar" style="height: max-content;position:sticky;">
+                <div class="box animated animation-fadeup">
                     <img src="<?= get_gravatar(htmlspecialchars($user["email"])); ?>" class="rounded" title="<?= htmlspecialchars($user["username"]); ?> Profile Image">
                     <h2><a href="<?= BASEPATH ?>/account/<?= $user["uname"] ?>"><?= htmlspecialchars($user["username"]); ?></a></h2>
                     <p><?= htmlspecialchars($user['meta']); ?></p>
@@ -63,7 +63,7 @@ if (!defined("D")) {
                     ?>
                 </div>
                 <div class="p-2"></div>
-                <div class="box" style="text-align: left;">
+                <div class="box animated animation-fadeup" style="text-align: left;">
                     <?php
                     if (logged_in()) {
                         if ($user['email'] === hash__($_COOKIE['_loggedin__hash'], "decrypt")) {

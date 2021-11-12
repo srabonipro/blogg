@@ -42,7 +42,7 @@
         }
         ?>
     </div>
-    <div id="homepage-middle" class="col-xs-12 col-sm-7">
+    <div id="homepage-middle" class="col-xs-12 col-sm-7 ">
         <?php
         /**
          * Find the active page
@@ -107,7 +107,7 @@
                  */
                 $account = DB::queryFirstRow("SELECT * FROM users WHERE id=%s", $row['creator']);
                 ?>
-                <div class="post-box">
+                <div class="post-box animated animation-fadeup">
                     <div class="profile-small">
                         <div class="col-2">
                             <img src="<?= get_gravatar(htmlspecialchars($account["email"])); ?>" class="rounded" title="<?= htmlspecialchars($account["username"]); ?> Profile Image">
@@ -156,8 +156,7 @@
             ?>
         </div>
     </div>
-    <div id="homepage-right" class="col-xs-12 col-sm-3">
-    <button id="myButton">My Button</button>
+    <div id="homepage-right animated animation-fadeup" class="col-xs-12 col-sm-3">
         <?php
         $results = DB::query("SELECT `content` FROM sideboxes WHERE `location` = 'homepage_right'");
 

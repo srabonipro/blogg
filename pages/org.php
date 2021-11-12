@@ -30,13 +30,16 @@ if (!isset($_GET['id']) or !logged_in()) {
                     echo json_encode(array("code" => $key));
                     die();
                 }
-            } elseif (
+            } 
+            /**
+             * Update org info
+             */
+            elseif (
                 isset($_POST["name"])
                 and isset($_POST["about"])
                 and isset($_POST["location"])
                 and isset($_POST["website"])
                 and isset($_POST["email"])
-                and isset($_POST["address"])
             ) {
                 /**
                  * Update the organization
@@ -51,22 +54,69 @@ if (!isset($_GET['id']) or !logged_in()) {
                 $location = $_POST["location"];
                 $website = $_POST["website"];
                 $email = $_POST["email"];
-                $address = $_POST["address"];
+            
 
-                $v->rule('max', 'values.*', 100);
+                $v = new Valitron\Validator(
+                    array(
+                        'name' => $name,
+                        'about' => $about,
+                        'location' => $location,
+                        'website' => $website,
+                        'email' => $email
+                    )
+                );
+            
+                $v->rule('required', 'name');
+                $v->rule('required', 'email');
+                $v->rule('email', 'email');
+                $v->rule('url', "website");
+            
+                /**
+                 * 
+                 * Check if valid
+                 * 
+                 */
+            
                 if ($v->validate()) {
-                    echo "Yay! We're all good!";
+                    $s = true;
                 } else {
-                    // Errors
-                    print_r($v->errors());
+                    /**
+                     * Validation errors
+                     */
+                    $s = false;
+                    ob_start();
+                    print("<h2>Fix these errors</h2>");
+                    foreach ($v->errors() as $error) {
+                        foreach ($error as $value) {
+                            print("<p>" . $value . "</p>");
+                        }
+                    }
+                    $m = ob_get_clean();
                 }
 
-                $status = array(
-                    "message" => $message,
-                    "success" => $success
-                );
-                echo json_encode($status);
-                die();
+                if ($s == true) {
+                    /**
+                     * Update the database
+                     */
+                    DB::update(
+                        "organizations",
+                        array(
+                            "name" => $name,
+                            "about" => $about,
+                            "location" => $location,
+                            "website" => $website,
+                            "email" => $email,
+                        ),
+                        "id=%s",
+                        $org["id"]
+                    );
+
+                    /**
+                     * Show success
+                     */
+                    $s = true;
+                    $m = "";
+                } 
             }
 
             echo show_header("Organization: " . htmlspecialchars($org["name"]) . " Management");
@@ -85,6 +135,23 @@ if (!isset($_GET['id']) or !logged_in()) {
             }
 ?>
             <div class="box">
+                <?php 
+                if(isset($s) and isset($m))
+                {
+                    if (!$s == false) {
+                        /**
+                         * Refresh the page
+                         */
+                        echo "<div class='notification success'>";
+                        echo "Saved <a class='btn ms-1' href='".current_url()."'>Refresh</a>";
+                    } else {
+                        echo "<div class='notification error'>";
+                    }
+                    echo $m;
+                    echo "</div>";
+                    echo "<div class=\"p-2\"></div>";
+                }
+                ?>
                 <h1>Organsiation - <b> <?= $org["name"] ?> </b> - Management</h1>
                 <p><i class="mdi mdi-lock"></i> Only the owner (you) can manage this Organization</p>
                 <div class="p-2"></div>
@@ -178,7 +245,7 @@ if (!isset($_GET['id']) or !logged_in()) {
                             /**
                              * Email
                              */
-                            echo "<td>" . $user["email"] . "</td>";
+                            echo "<td><a href='#' data-username=\"".$user["id"]."\">" . obfuscate_email($user["email"]) . "</a></td>";
 
                             /**
                              * Role
